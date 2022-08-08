@@ -1,0 +1,55 @@
+<% var item, key %>
+
+<% htmlWebpackPlugin.options.links = htmlWebpackPlugin.options.links || [] %>
+<% htmlWebpackPlugin.options.meta = htmlWebpackPlugin.options.meta || [] %>
+<% htmlWebpackPlugin.options.scripts = htmlWebpackPlugin.options.scripts || [] %>
+
+<%= htmlWebpackPlugin.options.jspIsElIgnored %>
+<%= htmlWebpackPlugin.options.jspTagLib %>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <!--Data from Spring-Security CSRF Filter-->
+    <script>document.write('<base href="' + document.location + '" />');</script>
+
+    <% if (Array.isArray(htmlWebpackPlugin.options.meta)) { %>
+    <% for (item of htmlWebpackPlugin.options.meta) { %>
+    <meta<% for (key in item) { %> <%= key %>="<%= item[key] %>"<% } %>>
+    <% } %>
+    <% } %>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta http-equiv="Cache-Control" content="no-cache" />
+    <title><%= htmlWebpackPlugin.options.title %></title>
+
+   <% for (item of htmlWebpackPlugin.options.links) { %>
+       <% if (typeof item === 'string' || item instanceof String) { item = { href: item, rel: 'stylesheet' } } %>
+       <link<% for (key in item) { %> <%= key %>="<%= item[key] %>"<% } %>>
+       <% } %>
+
+       <% for (key in htmlWebpackPlugin.files.css) { %>
+       <link href="<%= htmlWebpackPlugin.files.css[key] %>" rel="stylesheet">
+       <% } %>
+
+    <script type="text/javascript">
+            (function(window) {
+                window.configContextPath = '<%= htmlWebpackPlugin.options.contextPath %>' || '';
+            })(window);
+    </script>
+
+</head>
+<body class="layout-column">
+<div id="versionDiv" class="hide">Версия <%= htmlWebpackPlugin.options.version %> (от <%= htmlWebpackPlugin.options.lastModified %>)</div>
+<route-app>
+    <div class="loading-bar-box">
+        Идет загрузка
+        <img src="./images/loading.gif" width="168" height="40" border="0"/>
+    </div>
+<route-app>
+</body>
+
+    <% for (key in htmlWebpackPlugin.files.chunks) { %>
+    <script src="<%= htmlWebpackPlugin.files.chunks[key].entry %>" type="text/javascript"></script>
+    <% } %>
+
+</html>

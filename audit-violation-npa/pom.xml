@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>parent</artifactId>
+    <groupId>ru.nvacenter.bis</groupId>
+    <version>1.1-SNAPSHOT</version>
+  </parent>
+  <groupId>ru.nvacenter.bis</groupId>
+  <artifactId>audit-violation-npa</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <dependencies>
+    <dependency>
+      <groupId>ru.nvacenter.bis</groupId>
+      <artifactId>core</artifactId>
+      <version>1.1-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+      <groupId>org.antlr</groupId>
+      <artifactId>antlr4</artifactId>
+      <version>4.7</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.5</version>
+    </dependency>
+    <dependency>
+      <groupId>ru.nvacenter.bis</groupId>
+      <artifactId>audit-npa-common</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+	<dependency>
+      <groupId>ru.nvacenter.bis</groupId>
+      <artifactId>audit-violation-common</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <finalName>audit-violation-npa</finalName>
+    <resources>
+      <!-- Включает в jar исходники, .css, картинки и пр. файлы необходимое для компиляции gwt -->
+      <resource>
+        <directory>src/main/java</directory>
+      </resource>
+      <!-- Включает в jar конфигурационные файлы, такие как web-fragment.xml -->
+      <resource>
+        <directory>src/main/resources</directory>
+      </resource>
+    </resources>
+  </build>
+  <profiles>
+    <profile>
+      <id>production</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-antrun-plugin</artifactId>
+            <version>${version.antrun.plugin}</version>
+            <executions>
+              <execution>
+                <id>dist-move</id>
+                <phase>prepare-package</phase>
+                <configuration>
+                  <target name="install frontend dist">
+                    <delete dir="${project.build.outputDirectory}/META-INF/resources/css"
+                            includeemptydirs="true" />
+                    <delete dir="${project.build.outputDirectory}/META-INF/resources/js"
+                            includeemptydirs="true" />
+                    <delete dir="${project.build.outputDirectory}/META-INF/resources/images"
+                            includeemptydirs="true" />
+                    <delete dir="${project.build.outputDirectory}/META-INF/resources/less"
+                            includeemptydirs="true" />
+                    <delete dir="${project.build.outputDirectory}/META-INF/resources/.tmp"
+                            includeemptydirs="true" />
+                    <delete dir="${project.build.outputDirectory}/META-INF/resources/modules"
+                            includeemptydirs="true" />
+                    <delete dir="${project.build.outputDirectory}/META-INF/resources/.css"
+                            includeemptydirs="true" />
+                    <delete dir="${project.build.outputDirectory}/META-INF/resources/.map"
+                            includeemptydirs="true" />
+
+                    <move todir="${project.build.outputDirectory}/META-INF/resources/">
+                      <fileset dir="${project.build.outputDirectory}/META-INF/resources/dist" />
+                    </move>
+
+                    <move file="${project.build.outputDirectory}/META-INF/resources/audit-violation-npa.jsp"
+                          tofile="${project.build.outputDirectory}/META-INF/resources/jsp/audit-violation-npa.jsp"
+                          verbose="true" overwrite="true" />
+                  </target>
+                </configuration>
+                <goals>
+                  <goal>run</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

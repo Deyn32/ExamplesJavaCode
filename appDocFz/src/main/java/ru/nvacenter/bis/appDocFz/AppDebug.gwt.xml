@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module rename-to='App'>
+    <inherits name='ru.nvacenter.bis.appDocFz.App'/>
+
+    <!-- Disable CSS obfuscation for Debug -->
+    <set-configuration-property name="CssResource.style" value="pretty"/>
+
+    <set-property name="gwt.logging.enabled" value="TRUE" />
+    <!-- Disable logs filtering in Debug -->
+    <set-property name="gwt.logging.logLevel" value="ALL" />
+    <set-property name="gwt.logging.consoleHandler" value="ENABLED" />
+    <set-property name="gwt.logging.developmentModeHandler" value="ENABLED" />
+    <set-property name="gwt.logging.systemHandler" value="DISABLED" />
+    <set-property name="gwt.logging.hasWidgetsHandler" value="DISABLED" />
+    <set-property name="gwt.logging.simpleRemoteHandler" value="DISABLED" />
+</module>

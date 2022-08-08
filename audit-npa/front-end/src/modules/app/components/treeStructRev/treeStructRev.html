@@ -1,0 +1,41 @@
+<span [ngSwitch]="switchboard">
+    <ng-template ngSwitchCase="main">
+        <br>
+        <button type="button" (click)="btnFullViewing()" pButton icon="fa-search" label="Просмотр и редактирование" [disabled]="disFullViewing"></button>
+        <br>
+        <br>
+        <div>
+            <p-treeTable [value]="modelTree" [style]="{'width':'100%'}" selectionMode="single"
+                         [(selection)]="selectedTree" (onNodeSelect)="onNodeTreeSelect($event)"
+                         scrollable="false" scrollHeight="320%">
+            <p-column field="label" header="Структурная единица" [style]="{'width':'43%'}"></p-column>
+            <p-column field="type" header="Тип структурной единицы" [style]="{'width':'20%','text-align':'center'}"></p-column>
+            <p-column field="dtBegin" header="Дата ввода в действие" [style]="{'width':'18%','text-align':'center'}">
+                <ng-template let-node="rowData" pTemplate="body">
+                    <span>{{node.data.dtBegin | date: 'dd.MM.yyyy'}}</span>
+                </ng-template>
+            </p-column>
+            <p-column field="dtEnd" header="Дата окончания действия" [style]="{'width':'18%','text-align':'center'}">
+                <ng-template let-node="rowData" pTemplate="body">
+                    <span>{{node.data.dtEnd | date: 'dd.MM.yyyy'}}</span>
+                </ng-template>
+            </p-column>
+            </p-treeTable>
+        </div>
+    </ng-template>
+    <ng-template ngSwitchCase="fullver">
+        <fullelem-app [selectedDocList]="selectedDocList" [modelFormRevision]="modelFormRevision" [selectedTree]="selectedTree" [get]="get" [elemTypes]="elemTypes"></fullelem-app>
+    </ng-template>
+</span>
+
+<!-- Диалоговое окно полосы загрузки -->
+<div>
+    <p-dialog [(visible)]="displayLoading" [style]="{'border':'2px solid #0242FF'}">
+        <p-header>
+            Пожалуйста, подождите...
+        </p-header>
+        <div class="imageContainer glass">
+            <img src="../../images/loading.gif" width="350" height="40" border="0" />
+        </div>
+    </p-dialog>
+</div>

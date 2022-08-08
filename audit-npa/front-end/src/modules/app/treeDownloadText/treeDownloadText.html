@@ -1,0 +1,25 @@
+<span *ngIf="isComponent == true; else elseBlock">
+    <p-toolbar class="headerMergeTrees">
+        <div class="ui-g">
+            <div class="ui-g-4">
+                <button type="button" pButton (click)="btnBack()" icon="fas fa-angle-left" label="Назад"></button>
+                <button type="button" pButton icon="fa-file" (click)="btnSaveLoadFile()" label="Сохранить"></button>
+            </div>
+            <div class="ui-g-4" style="font-size: 1.2em;font-weight:bold;text-align: center">
+                <span>Файл: {{fileName}}</span>
+            </div>
+            <div class="ui-g-4"></div>
+        </div>
+    </p-toolbar>
+    <br>
+    <br>
+    <textarea pInputTextarea style="opacity: 0;" rows="1" autoResize="true" disabled="true"></textarea>
+    <p-treeTable [value]="modelTreeFile.tree.children" scrollWidth="600px" [style]="{'width':'100%','max-height':'250px','margin-top':'50px'}" (onNodeSelect)="onNodeTreeSelect($event)">
+        <p-column field="name" header="Структурная единица" [style]="{'width':'55%'}"></p-column>
+        <p-column field="type" header="Тип структурной единицы" [style]="{'width':'35%','text-align':'center'}"></p-column>
+        <p-column field="num" header="Номер" [style]="{'width':'10%','text-align':'center'}"></p-column>
+    </p-treeTable>
+</span>
+<ng-template #elseBlock>
+    <sg-comp-app></sg-comp-app>
+</ng-template>

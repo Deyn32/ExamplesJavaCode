@@ -1,0 +1,42 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+			 xmlns:g="urn:import:com.google.gwt.user.client.ui"
+		>
+
+	<ui:with field="resources"
+		type="ru.nvacenter.bis.appDocFz.client.resources.Resources" />
+	<g:ScrollPanel>
+		<g:FlowPanel>
+			<g:CaptionPanel captionText="Администратор" ui:field="adminPanel"
+				styleName="{resources.startViewCss.captionPanel}">
+				<g:FlowPanel styleName="{resources.startViewCss.gwtFlowPanelHorizontal}">
+
+				</g:FlowPanel>
+			</g:CaptionPanel>
+			<g:CaptionPanel captionText="Учредитель" ui:field="founderPanel"
+				styleName="{resources.startViewCss.captionPanel}">
+				<g:FlowPanel styleName="{resources.startViewCss.gwtFlowPanelHorizontal}">
+
+				</g:FlowPanel>
+			</g:CaptionPanel>
+			<g:CaptionPanel captionText="Учреждение" ui:field="institutePanel"
+				styleName="{resources.startViewCss.captionPanel}">
+				<g:FlowPanel styleName="{resources.startViewCss.gwtFlowPanelHorizontal}">
+
+				</g:FlowPanel>
+			</g:CaptionPanel>
+			<g:CaptionPanel captionText="Филиал" ui:field="branchPanel"
+                                             styleName="{resources.startViewCss.captionPanel}">
+            <g:FlowPanel styleName="{resources.startViewCss.gwtFlowPanelHorizontal}">
+
+            </g:FlowPanel>
+        </g:CaptionPanel>
+            <g:CaptionPanel captionText="Казенное учреждение" ui:field="lboPanel"
+                            styleName="{resources.startViewCss.captionPanel}">
+                <g:FlowPanel styleName="{resources.startViewCss.gwtFlowPanelHorizontal}">
+
+                </g:FlowPanel>
+            </g:CaptionPanel>
+		</g:FlowPanel>
+	</g:ScrollPanel>
+</ui:UiBinder> 

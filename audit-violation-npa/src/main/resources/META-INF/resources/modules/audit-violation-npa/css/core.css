@@ -1,0 +1,142 @@
+.loading-bar-box {
+    position: absolute;
+    top: 45%;
+    left: 45%;
+}
+.loading {
+    z-index: 1090;
+    -webkit-background-clip: padding-box;
+    -webkit-background-origin: padding-box;
+    -webkit-background-size: auto;
+    -webkit-border-image: none;
+    -webkit-box-shadow: rgba(0, 0, 0, 0.2) 0px 4px 16px 0px;
+    background-clip: padding-box;
+    background: rgb(255, 255, 255) none scroll;
+    background-origin: padding-box;
+    background-size: auto;
+    border: 1px solid rgba(0, 0, 0, 0.333333);
+    box-shadow: rgba(0, 0, 0, 0.2) 0 4px 16px 0;
+    color: rgb(0, 0, 0);
+    display: block;
+    font-family: arial, sans-serif;
+    outline: rgb(0, 0, 0) none 0;
+    padding: 30px 42px;
+    position: absolute;
+    top: 144px;
+    /*top: 288px;*/
+
+    left: 0;
+    right: 0;
+    margin-left: auto;
+    margin-right: auto;
+    height: 120px;
+    width: 300px;
+}
+
+.loading.caption {
+    background-color: rgb(255, 255, 255);
+    color: rgb(0, 0, 0);
+    cursor: default;
+    display: block;
+    font-family: arial, sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-variant: normal;
+    font-weight: normal;
+    line-height: 24px;
+}
+
+.loading.imageContainer {
+    margin-top: 16px;
+}
+
+.imageContainer img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.glass {
+    opacity: 0.75;
+    -webkit-background-clip: border-box;
+    -webkit-background-origin: padding-box;
+    -webkit-background-size: auto;
+    background-clip: border-box;
+    background: #fff none scroll;
+    background-origin: padding-box;
+    background-size: auto;
+}
+
+.ui-dialog-content {
+    overflow: auto;
+}
+
+.ui-dialog-title {
+    font-size: 14px;
+    font-weight: bold;
+    background: rgba(25,79,255,0);
+}
+
+div.ui-datatable-scrollable-header {
+    overflow: visible;
+}
+
+div.ui-widget-header.ui-datatable-scrollable-header {
+    position: sticky;
+    position: -webkit-sticky;
+    position: -moz-sticky;
+    position: -ms-sticky;
+    position: -o-sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.button-up {
+    margin-bottom: 15px;
+}
+
+.greyNode {
+    background-color:grey;
+}
+
+.brownNode {
+    background-color: yellow;
+}
+
+.iredDiffsNode {
+    background-color: indianred;
+}
+
+.deleteTextNode {
+    background-color:wheat;
+}
+
+.insertTextNode {
+    background-color:wheat;
+}
+
+.calendarOverFlow {
+    overflow: visible;
+}
+
+.dropboxOverFlow {
+    overflow: visible;
+    text-align: center;
+}
+
+.headerMergeTrees {
+    position: fixed;
+    left: 0px;
+    right: 0px;
+    opacity: 1;
+}
+
+div.ui-treetable {
+    position: inherit;
+}
+
+.compareDialog {
+    font-size: 1.0em;
+    font-weight: bold;
+    text-align: center;
+}

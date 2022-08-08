@@ -1,0 +1,399 @@
+{
+  "name": "app",
+  "version": "0.1.0",
+  "private": true,
+  "devDependencies": {
+    "autoprefixer": "6.2.1",
+    "cssnano": "^3.3.1",
+    "express": "^4.13.4",
+    "grunt": "^0.4.5",
+    "grunt-angular-templates": "^1.1.0",
+    "grunt-concurrent": "2.1.0",
+    "grunt-contrib-clean": "0.7.0",
+    "grunt-contrib-concat": "0.5.1",
+    "grunt-contrib-copy": "0.8.2",
+    "grunt-contrib-htmlmin": "1.4.0",
+    "grunt-contrib-imagemin": "1.0.0",
+    "grunt-contrib-jshint": "0.11.0",
+    "grunt-contrib-less": "1.1.0",
+    "grunt-contrib-uglify": "0.7.0",
+    "grunt-contrib-watch": "0.6.1",
+    "grunt-filerev": "2.3.1",
+    "grunt-ng-annotate": "1.0.1",
+    "grunt-postcss": "0.7.1",
+    "grunt-replace": "0.11.0",
+    "grunt-systemjs-builder": "1.0.0",
+    "grunt-usemin": "3.1.1",
+    "jit-grunt": "0.9.1",
+    "jshint-stylish": "1.0.0",
+    "jspm": "0.17.0-beta.32",
+    "load-grunt-config": "0.19.1",
+    "pixrem": "3.0.0",
+    "systemjs": "0.19.31",
+    "systemjs-builder": "^0.15.23",
+    "systemjs-route-bundler": "^1.6.0",
+    "time-grunt": "1.0.0",
+    "typescript": "^1.8.10",
+    "vinyl-fs": "2.2.1"
+  },
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "jspm": {
+    "name": "app",
+    "main": "main.js",
+    "directories": {
+      "baseURL": "src/main/resources/META-INF/resources/js/audit-npa"
+    },
+    "dependencies": {
+      "@angular/forms": "npm:@angular/forms@^2.4.6",
+      "@angular/http": "npm:@angular/http@^2.4.6",
+      "@angular/router": "npm:@angular/router@^3.4.6",
+      "angular-activerecord": "npm:angular-activerecord@^0.3.0",
+      "angular-animate": "npm:angular-animate@^1.6.2",
+      "angular-bootstrap-grid-tree": "npm:angular-bootstrap-grid-tree@^0.4.0",
+      "angular-busy": "npm:angular-busy@^4.1.4",
+      "angular-cookies": "npm:angular-cookies@^1.6.2",
+      "angular-growl-notifications": "npm:angular-growl-notifications@^2.5.0",
+      "angular-i18n": "npm:angular-i18n@^1.6.2",
+      "angular-loading-bar": "npm:angular-loading-bar@^0.9.0",
+      "angular-material": "npm:angular-material@^1.1.1",
+      "angular-motion": "npm:angular-motion@^0.4.4",
+      "angular-nvd3": "npm:angular-nvd3@^1.0.9",
+      "angular-sanitize": "npm:angular-sanitize@^1.6.2",
+      "angular-strap": "npm:angular-strap@^2.3.12",
+      "angular-touch": "npm:angular-touch@^1.6.2",
+      "angular-ui-grid": "npm:angular-ui-grid@^4.0.2",
+      "danialfarid/ng-file-upload-shim-bower": "github:danialfarid/ng-file-upload-shim-bower@12.0.1",
+      "eligrey/FileSaver.js": "github:eligrey/FileSaver.js@^1.3.3",
+      "es6-shim": "github:es-shims/es6-shim@0.35.1",
+      "font-awesome": "npm:font-awesome@^4.7.0",
+      "jquery": "npm:jquery@2.2.4",
+      "jspm-nodelibs-os": "npm:jspm-nodelibs-os@^0.2.0",
+      "lodash": "npm:lodash@^4.17.2",
+      "moment": "npm:moment@^2.16.0",
+      "ng-file-upload": "npm:ng-file-upload@^12.2.13",
+      "nvd3": "npm:nvd3@^1.8.4",
+      "plugin-babel": "npm:systemjs-plugin-babel@^0.0.12",
+      "primeng": "npm:primeng@^2.0.0",
+      "reflect-metadata": "npm:reflect-metadata@0.1.3",
+      "requirejs": "npm:requirejs@2.1.20",
+      "restangular": "npm:restangular@^1.6.1",
+      "twbs/bootstrap": "github:twbs/bootstrap@^3.3.7",
+      "ui-router-ng1-to-ng2": "npm:ui-router-ng1-to-ng2@1.0.6",
+      "ui-select": "npm:ui-select@^0.19.6"
+    },
+    "devDependencies": {
+      "plugin-typescript": "github:frankwallis/plugin-typescript@^4.0.16"
+    },
+    "peerDependencies": {
+      "@angular/common": "npm:@angular/common@2.4.6",
+      "@angular/compiler": "npm:@angular/compiler@2.4.6",
+      "@angular/core": "npm:@angular/core@2.4.6",
+      "@angular/platform-browser": "npm:@angular/platform-browser@2.4.6",
+      "@angular/platform-browser-dynamic": "npm:@angular/platform-browser-dynamic@2.4.6",
+      "@angular/upgrade": "npm:@angular/upgrade@^2.4.6",
+      "angular": "npm:angular@^1.5.8",
+      "angular-ui-router": "npm:angular-ui-router@^0.4.2",
+      "assert": "npm:jspm-nodelibs-assert@^0.2.0",
+      "bcrypt-pbkdf": "npm:bcrypt-pbkdf@^1.0.0",
+      "buffer": "npm:jspm-nodelibs-buffer@^0.2.0",
+      "child_process": "npm:jspm-nodelibs-child_process@^0.2.0",
+      "constants": "npm:jspm-nodelibs-constants@^0.2.0",
+      "crypto": "npm:jspm-nodelibs-crypto@^0.2.0",
+      "d3": "npm:d3@^3.4.4",
+      "dgram": "npm:jspm-nodelibs-dgram@^0.2.0",
+      "dns": "npm:jspm-nodelibs-dns@^0.2.0",
+      "ecc-jsbn": "npm:ecc-jsbn@~0.1.1",
+      "events": "npm:jspm-nodelibs-events@^0.2.0",
+      "fs": "npm:jspm-nodelibs-fs@^0.2.0",
+      "http": "npm:jspm-nodelibs-http@^0.2.0",
+      "https": "npm:jspm-nodelibs-https@^0.2.0",
+      "jodid25519": "npm:jodid25519@^1.0.0",
+      "jsbn": "npm:jsbn@0.1",
+      "net": "npm:jspm-nodelibs-net@^0.2.0",
+      "os": "npm:jspm-nodelibs-os@^0.2.0",
+      "path": "npm:jspm-nodelibs-path@^0.2.0",
+      "process": "npm:jspm-nodelibs-process@^0.2.0",
+      "querystring": "npm:jspm-nodelibs-querystring@^0.2.0",
+      "rxjs": "npm:rxjs@^5.0.1",
+      "stream": "npm:jspm-nodelibs-stream@^0.2.0",
+      "string_decoder": "npm:jspm-nodelibs-string_decoder@^0.2.0",
+      "timers": "npm:jspm-nodelibs-timers@^0.2.0",
+      "tls": "npm:jspm-nodelibs-tls@^0.2.0",
+      "tty": "npm:jspm-nodelibs-tty@^0.2.0",
+      "tweetnacl": "npm:tweetnacl@0.14",
+      "ui-router-ng2": "npm:ui-router-ng2@1.0.0-alpha.5",
+      "url": "npm:jspm-nodelibs-url@^0.2.0",
+      "util": "npm:jspm-nodelibs-util@^0.2.0",
+      "vm": "npm:jspm-nodelibs-vm@^0.2.0",
+      "zlib": "npm:jspm-nodelibs-zlib@^0.2.0",
+      "zone.js": "npm:zone.js@^0.7.2"
+    },
+    "overrides": {
+      "github:angular/bower-angular-animate@1.6.4": {
+        "main": "angular-animate",
+        "registry": "jspm",
+        "dependencies": {
+          "angular": "^1.3.0"
+        },
+        "meta": {
+          "angular-animate.js": {
+            "deps": [
+              "angular"
+            ],
+            "format": "global"
+          }
+        }
+      },
+      "github:angular/bower-angular-aria@1.6.4": {
+        "main": "angular-aria",
+        "registry": "jspm",
+        "dependencies": {
+          "angular": "^1.3.0"
+        },
+        "meta": {
+          "angular-aria.js": {
+            "deps": [
+              "angular"
+            ],
+            "format": "global"
+          }
+        }
+      },
+      "github:angular/bower-angular-messages@1.6.4": {
+        "main": "angular-messages",
+        "registry": "jspm",
+        "dependencies": {
+          "angular": "^1.5.0"
+        },
+        "meta": {
+          "angular-messages.js": {
+            "deps": [
+              "angular"
+            ],
+            "format": "global"
+          }
+        }
+      },
+      "github:angular/bower-angular@1.6.4": {
+        "main": "angular",
+        "meta": {
+          "angular.js": {
+            "exports": "angular",
+            "format": "global"
+          }
+        }
+      },
+      "github:twbs/bootstrap@3.3.7": {
+        "shim": {
+          "js/bootstrap": {
+            "deps": [
+              "jquery"
+            ],
+            "exports": "$"
+          }
+        },
+        "dependencies": {
+          "jquery": "2"
+        },
+        "files": [
+          "dist",
+          "fonts",
+          "js",
+          "css",
+          "less",
+          "grunt",
+          "LICENSE"
+        ],
+        "systemjs": {
+          "main": "dist/js/bootstrap.js",
+          "modules": {
+            "dist/js/bootstrap.js": {
+              "deps": [
+                "jquery"
+              ],
+              "exports": "$"
+            }
+          }
+        }
+      },
+      "npm:@angular/common@2.4.6": {
+        "meta": {
+          "src/*.js": {
+            "deps": [
+              "reflect-metadata",
+              "zone.js"
+            ]
+          }
+        }
+      },
+      "npm:@angular/compiler@2.4.6": {
+        "meta": {
+          "src/*.js": {
+            "deps": [
+              "reflect-metadata",
+              "zone.js"
+            ]
+          }
+        },
+        "map": {
+          "@angular/compiler": ".",
+          "./testing": "./bundles/compiler-testing.umd.js"
+        }
+      },
+      "npm:@angular/core@2.4.6": {
+        "meta": {
+          "src/*.js": {
+            "deps": [
+              "reflect-metadata",
+              "zone.js"
+            ]
+          }
+        },
+        "map": {
+          "@angular/core": ".",
+          "./testing": "./bundles/core-testing.umd.js"
+        }
+      },
+      "npm:@angular/http@2.4.6": {
+        "meta": {
+          "src/*.js": {
+            "deps": [
+              "reflect-metadata",
+              "zone.js"
+            ]
+          }
+        },
+        "map": {
+          "@angular/http": ".",
+          "./testing": "./bundles/http-testing.umd.js"
+        }
+      },
+      "npm:@angular/platform-browser-dynamic@2.4.6": {
+        "meta": {
+          "src/*.js": {
+            "deps": [
+              "reflect-metadata",
+              "zone.js"
+            ]
+          }
+        }
+      },
+      "npm:@angular/platform-browser@2.4.6": {
+        "meta": {
+          "src/*.js": {
+            "deps": [
+              "reflect-metadata",
+              "zone.js"
+            ]
+          }
+        }
+      },
+      "npm:@angular/router@3.4.6": {
+        "meta": {
+          "src/*.js": {
+            "deps": [
+              "reflect-metadata",
+              "zone.js"
+            ]
+          }
+        },
+        "map": {
+          "@angular/router": ".",
+          "./testing": "./bundles/router-testing.umd.js"
+        }
+      },
+      "npm:angular@1.5.11": {
+        "format": "global",
+        "jspmNodeConversion": false,
+        "main": "angular",
+        "meta": {
+          "angular.js": {
+            "exports": "angular",
+            "format": "global"
+          }
+        }
+      },
+      "npm:angular@1.6.4": {
+        "format": "global",
+        "jspmNodeConversion": false,
+        "main": "angular",
+        "meta": {
+          "angular.js": {
+            "exports": "angular",
+            "format": "global"
+          }
+        }
+      },
+      "npm:browserify-zlib@0.1.4": {
+        "dependencies": {
+          "readable-stream": "^2.0.2",
+          "pako": "~0.2.0"
+        },
+        "map": {
+          "_stream_transform": "readable-stream/transform"
+        }
+      },
+      "npm:d3@3.5.17": {
+        "meta": {
+          "d3.js": {
+            "exports": "d3",
+            "format": "global"
+          }
+        }
+      },
+      "npm:font-awesome@4.7.0": {
+        "main": "css/font-awesome.css!",
+        "jspmNodeConversion": false,
+        "registry": "jspm",
+        "dependencies": {
+          "css": "0.1"
+        }
+      },
+      "npm:inherits@2.0.3": {
+        "ignore": [
+          "test.js"
+        ]
+      },
+      "npm:jquery@2.2.4": {
+        "format": "amd"
+      },
+      "npm:lodash@4.17.4": {
+        "map": {
+          "buffer": "@empty",
+          "process": "@empty"
+        }
+      },
+      "npm:moment@2.16.0": {
+        "jspmNodeConversion": false
+      },
+      "npm:reflect-metadata@0.1.3": {
+        "jspmNodeConversion": false,
+        "map": {
+          "crypto": {
+            "node": "@node/crypto",
+            "default": "@empty"
+          }
+        }
+      },
+      "npm:typescript@1.8.10": {
+        "browser": {},
+        "map": {
+          "buffer": "@empty",
+          "child_process": "@empty",
+          "fs": "@empty",
+          "path": "@empty",
+          "process": "@empty",
+          "readline": "@empty"
+        }
+      }
+    }
+  },
+  "scripts": {
+    "postinstall": "jspm install"
+  },
+  "dependencies": {
+    "font-awesome": "^4.7.0"
+  }
+}

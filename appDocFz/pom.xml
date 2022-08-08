@@ -1,0 +1,835 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<relativePath>../gwt-parent/pom.xml</relativePath>
+		<groupId>ru.nvacenter.bis</groupId>
+		<artifactId>gwt-parent</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>appDocFz</artifactId>
+	<packaging>war</packaging>
+	<name>appDocFz</name>
+	<description>eFOIS Web Application</description>
+	<organization>
+		<name>NVA-Center</name>
+		<url>www.nvacenter.ru</url>
+	</organization>
+
+	<properties>
+		<!-- значение номера билда по умолчанию, подменяется TeamCity -->
+		<build.number>0</build.number>
+
+		<warName>efois</warName>
+	</properties>
+
+
+	<dependencies>
+		<!-- все модули подключаются в этот проект -->
+		<dependency>
+			<groupId>ru.nvacenter.bis</groupId>
+			<artifactId>core</artifactId>
+			<version>1.1-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>ru.nvacenter.bis</groupId>
+			<artifactId>core</artifactId>
+			<version>1.1-SNAPSHOT</version>
+			<classifier>sources</classifier>
+			<scope>provided</scope>
+		</dependency>
+		
+		<dependency>
+            <groupId>ru.nvacenter.bis</groupId>
+            <artifactId>gwt-core</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>ru.nvacenter.bis</groupId>
+            <artifactId>gwt-core</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <classifier>sources</classifier>
+            <scope>provided</scope>
+        </dependency>
+		
+		<dependency>
+			<groupId>ru.nvacenter.bis</groupId>
+			<artifactId>service</artifactId>
+			<version>1.1-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>ru.nvacenter.bis</groupId>
+			<artifactId>service</artifactId>
+			<version>1.1-SNAPSHOT</version>
+			<classifier>sources</classifier>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>ru.nvacenter.bis</groupId>
+			<artifactId>guide-common</artifactId>
+			<version>1.1-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>ru.nvacenter.bis</groupId>
+			<artifactId>guide-common</artifactId>
+			<version>1.1-SNAPSHOT</version>
+			<classifier>sources</classifier>
+			<scope>provided</scope>
+		</dependency>
+        <dependency>
+            <groupId>ru.nvacenter.bis</groupId>
+            <artifactId>audit-npa</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <scope>compile</scope>
+        </dependency>
+		<dependency>
+			<groupId>ru.nvacenter.bis</groupId>
+			<artifactId>audit-violation-npa</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<!-- Generate compiled stuff in the folder used for developing mode -->
+		<outputDirectory>${webappDirectory}/WEB-INF/classes</outputDirectory>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>${version.war.plugin}</version>
+				<executions>
+					<execution>
+						<phase>prepare-package</phase>
+						<goals>
+							<goal>exploded</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<webappDirectory>${webappDirectory}</webappDirectory>
+					<warName>${warName}</warName>
+					<!--Чтобы изменения в web.xml произведенные на фазе prepare-package 
+						не были затёрты фазой package -->
+					<useCache>true</useCache>
+					<archiveClasses>true</archiveClasses>
+					<attachClasses>false</attachClasses>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-eclipse-plugin</artifactId>
+				<version>2.9</version>
+				<configuration>
+					<wtpversion>2.0</wtpversion>
+					<downloadJavadocs>true</downloadJavadocs>
+					<downloadSources>true</downloadSources>
+				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-release-plugin</artifactId>
+				<version>2.5</version>
+				<configuration>
+					<tagBase>http://svn.nvacenter.ru:80/svn/BIS/tags/bis</tagBase>
+					<branchBase>http://svn.nvacenter.ru:80/svn/BIS/branches/bis</branchBase>
+					<preparationGoals>clean install</preparationGoals>
+					<goals>deploy</goals>
+					<autoVersionSubmodules>true</autoVersionSubmodules>
+				</configuration>
+			</plugin>
+
+		</plugins>
+
+	</build>
+
+	<profiles>
+		<!-- профиль для дополнительной работы над war для ускоренной подготовки 
+			его тестовой версии -->
+		<profile>
+			<id>development</id>
+			<dependencies>
+				<!--В МинТруде основные таблицы веб ФОИСа будут распологаться в MySQL -->
+				<dependency>
+					<groupId>mysql</groupId>
+					<artifactId>mysql-connector-java</artifactId>
+					<version>5.1.38</version>
+					<scope>compile</scope>
+				</dependency>
+			</dependencies>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>gwt-maven-plugin</artifactId>
+						<version>${version.gwt.plugin}</version>
+						<configuration>
+							<!-- TODO: не ясно какой модуль будет использоваться -->
+							<module>ru.nvacenter.bis.appDocFz.AppDebug</module>
+							<draftCompile>true</draftCompile>
+							<encoding>${project.build.sourceEncoding}</encoding>
+							<sourceLevel>1.7</sourceLevel> <!--GWT пока (март 2014, апрель 2015) не поддерживает java 8 -->
+							<copyWebapp>true</copyWebapp>
+							<hostedWebapp>${webappDirectory}</hostedWebapp>
+							<webappDirectory>${webappDirectory}</webappDirectory>
+							<extra>${webappDirectory}/WEB-INF/classes/</extra>
+							<deploy>${webappDirectory}/WEB-INF/classes/</deploy>
+							<copyWebapp>true</copyWebapp>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<!-- подготовка war для deploy промышленной версии на сервере WildFly -->
+		<profile>
+			<id>production</id>
+			<dependencies>
+				<dependency>
+					<groupId>mysql</groupId>
+					<artifactId>mysql-connector-java</artifactId>
+					<version>5.1.38</version>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>${version.antrun.plugin}</version>
+						<executions>
+							<execution>
+								<id>prepare-configurations</id>
+								<phase>prepare-package</phase>
+								<configuration>
+									<target name="prepare configs to production">
+										<!-- Конфигурация логгера для development режима заменяем на конфигурацию 
+											для production -->
+										<move file="${webappDirectory}/WEB-INF/classes/logback.wildfly.xml"
+											tofile="${webappDirectory}/WEB-INF/classes/logback.xml"
+											verbose="false" overwrite="true" />
+
+										<!-- подменяет spring.profiles.active на production в web.xml -->
+										<replace file="${webappDirectory}/WEB-INF/web.xml"
+											encoding="${project.build.sourceEncoding}" token="development"
+											value="production" />
+
+										<replace file="${webappDirectory}/WEB-INF/classes/logback.xml"
+											token="ENV_LOG_DIR" value="${jboss.server.log.dir}" encoding="${project.build.sourceEncoding}" />
+
+										<!--<move file="${webappDirectory}/WEB-INF/classes/META-INF/persistence.wildfly.xml" -->
+										<!--tofile="${webappDirectory}/WEB-INF/classes/META-INF/persistence.xml" -->
+										<!--verbose="true" overwrite="true" /> -->
+
+										<!-- это файлы используемые для подключения во время разработки, 
+											на промышленном сервере подключаемся через jndi datasource сервера -->
+										<delete file="${webappDirectory}/WEB-INF/classes/jdbc.properties"
+											verbose="false" />
+										<delete file="${webappDirectory}/WEB-INF/classes/smtp.properties"
+											verbose="false" />
+										<delete file="${webappDirectory}/WEB-INF/classes/nsi.properties"
+											verbose="false" />
+										<delete file="${webappDirectory}/WEB-INF/classes/fois.properties"
+											verbose="false" />
+										<delete file="${webappDirectory}/WEB-INF/classes/fz.properties"
+											verbose="true" />
+										<delete file="${webappDirectory}/WEB-INF/classes/docfz.properties"
+											verbose="true" />
+									</target>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+
+						</executions>
+					</plugin>
+
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>gwt-maven-plugin</artifactId>
+						<version>${version.gwt.plugin}</version>
+						<executions>
+							<execution>
+								<configuration>
+									<extraJvmArgs>-Xms768M -Xmx2048M -Xss1M</extraJvmArgs>
+								</configuration>
+								<!-- JS is only needed in the package phase, this speeds up testing -->
+								<phase>prepare-package</phase>
+								<goals>
+									<goal>compile</goal>
+								</goals>
+							</execution>
+						</executions>
+						<!-- Plugin configuration. There are many available options, see http://mojo.codehaus.org/gwt-maven-plugin/compile-mojo.html -->
+						<configuration>
+							<module>ru.nvacenter.bis.appDocFz.AppProduction</module>
+							<!-- Turning This on after understanding soyc and when deferredjs 
+								count is 48.cache.js -->
+							<!-- https://developers.google.com/web-toolkit/articles/fragment_merging -->
+							<fragmentCount>25</fragmentCount>
+							<!-- Ask GWT to create the Story of Your Compile (SOYC) (gwt:compile) -->
+							<!-- Turn This on for generating soyc. This does not work if closure 
+								compiler is turned on. -->
+							<!-- Start Generating SOYC -->
+							<!--Данный параметр нужен для генерирования отчёта по Code Splitting. -->
+							<!--<compileReport>true</compileReport> -->
+							<!--<compilerMetrics>true</compilerMetrics> -->
+							<!--<soycDetailed>true</soycDetailed> -->
+							<!-- End Generating SOYC -->
+							<!--Также для включения генерации отчёта необходимо выключить closureCompiler -->
+							<enableClosureCompiler>false</enableClosureCompiler>
+							<optimizationLevel>9</optimizationLevel>
+							<encoding>${project.build.sourceEncoding}</encoding>
+							<sourceLevel>1.7</sourceLevel> <!--GWT пока (март 2014) не поддерживает java 8 -->
+							<copyWebapp>true</copyWebapp>
+							<hostedWebapp>${webappDirectory}</hostedWebapp>
+							<webappDirectory>${webappDirectory}</webappDirectory>
+							<extra>${webappDirectory}/WEB-INF/classes/</extra>
+							<deploy>${webappDirectory}/WEB-INF/classes/</deploy>
+							<copyWebapp>true</copyWebapp>
+							<runTarget>index.jsp</runTarget>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<!-- действия выполняемые только на релиз сборках -->
+		<profile>
+			<id>release</id>
+			<dependencies>
+				<!-- в этой сборке удаляются .class файлы предназначенные только для 
+					клиента GWT, поэтому зависимости от GWT библиотек можно исключить из папки 
+					WEB-INF\lib -->
+				<dependency>
+					<groupId>com.google.gwt</groupId>
+					<artifactId>gwt-user</artifactId>
+					<version>${version.gwt}</version>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>com.google.gwt.inject</groupId>
+					<artifactId>gin</artifactId>
+					<version>2.1.2</version>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>com.google.inject</groupId>
+					<artifactId>guice</artifactId>
+					<version>3.0</version>
+					<scope>provided</scope>
+				</dependency>
+				<dependency>
+					<groupId>com.googlecode.gwtquery</groupId>
+					<artifactId>gwtquery</artifactId>
+					<version>1.4.3</version>
+					<scope>provided</scope>
+				</dependency>
+			</dependencies>
+			<build>
+				<plugins>
+					<!-- Генератор отчетов по используемым лицензиям сторонних библиотек 
+						и лицензии приложения -->
+					<plugin>
+						<groupId>org.codehaus.mojo</groupId>
+						<artifactId>license-maven-plugin</artifactId>
+						<version>1.8</version>
+						<executions>
+							<execution>
+								<id>download-licenses</id>
+								<goals>
+									<goal>download-licenses</goal>
+									<goal>aggregate-add-third-party</goal>
+								</goals>
+								<phase>prepare-package</phase>
+							</execution>
+						</executions>
+					</plugin>
+
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-shade-plugin</artifactId>
+						<version>2.4.3</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>shade</goal>
+								</goals>
+								<configuration>
+									<finalName>${project.build.finalName}-shaded</finalName>
+								</configuration>
+							</execution>
+						</executions>
+						<configuration>
+							<artifactSet>
+								<includes>
+									<include>ru.nvacenter.*:*</include>
+								</includes>
+							</artifactSet>
+							<filters>
+								<filter>
+									<artifact>ru.nvacenter.bis:core</artifact>
+									<excludes>
+										<exclude>lib/win-x86/sqljdbc_auth.dll</exclude>
+										<exclude>lib/win-x64/sqljdbc_auth.dll</exclude>
+									</excludes>
+								</filter>
+								<filter>
+									<artifact>ru.nvacenter.platform:platform-gwt</artifact>
+									<includes>
+										<include>ru/nvacenter/platform/gwt/user/server/*</include>
+										<include>ru/nvacenter/platform/gwt/requestfactory/server/**/*</include>
+										<include>ru/nvacenter/platform/gwt/requestfactory/shared/**/*</include>
+									</includes>
+								</filter>
+								<filter>
+									<artifact>ru.nvacenter.platform:platform-core</artifact>
+									<includes>
+										<include>ru/nvacenter/platform/core/**/*</include>
+									</includes>
+								</filter>
+								<filter>
+									<artifact>ru.nvacenter.bis:*</artifact>
+									<excludes>
+										<exclude>ru/nvacenter/bis/**/test/**/*</exclude>
+										<exclude>ru/nvacenter/bis/**/client/**/*</exclude>
+									</excludes>
+								</filter>
+							</filters>
+							<transformers>
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ApacheLicenseResourceTransformer" />
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+								<transformer
+									implementation="org.apache.maven.plugins.shade.resource.DontIncludeResourceTransformer">
+									<resources>
+										<resource>.jar</resource>
+										<resource>logback.xml</resource>
+										<resource>persistence.xml</resource>
+									</resources>
+								</transformer>
+							</transformers>
+						</configuration>
+					</plugin>
+
+					<plugin>
+						<groupId>com.github.wvengen</groupId>
+						<artifactId>proguard-maven-plugin</artifactId>
+						<version>2.0.14</version>
+						<executions>
+							<execution>
+								<phase>package</phase>
+								<goals>
+									<goal>proguard</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<obfuscate>true</obfuscate>
+							<inFilter>ru/nvacenter/**</inFilter>
+							<injar>${project.build.finalName}-shaded.war</injar>
+							<!-- Этот глючный плагин копирует исходных файл (хотя копия весит 
+								0 байт) и переименовывает его в original-...jar, после чего не видит классов 
+								в пустом файле -->
+							<injar>original-${project.build.finalName}-shaded.war</injar>
+							<outjar>${project.build.finalName}-obfuscated.war</outjar>
+							<!-- Our application is so big that ProGuard had ran out of memory -->
+							<maxMemory>1024m</maxMemory>
+
+							<!-- File with proguard configuration -->
+							<proguardInclude>${basedir}/../proguard.conf</proguardInclude>
+
+							<!-- Now exclude all modules that are embedded in the jar, so that 
+								ProGuard won't see a redefinition of each single class. You don't have to 
+								write down your main module. -->
+							<exclusions>
+								<exclusion>
+									<groupId>ru.nvacenter.platform</groupId>
+									<artifactId>platform-gwt</artifactId>
+								</exclusion>
+								<exclusion>
+									<groupId>ru.nvacenter.platform</groupId>
+									<artifactId>platform-gwt</artifactId>
+									<classifier>sources</classifier>
+								</exclusion>
+
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>core</artifactId>
+								</exclusion>
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>core</artifactId>
+									<classifier>sources</classifier>
+								</exclusion>
+
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>gwt-core</artifactId>
+								</exclusion>
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>gwt-core</artifactId>
+									<classifier>sources</classifier>
+								</exclusion>
+
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>file-fk</artifactId>
+								</exclusion>
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>file-fk</artifactId>
+									<classifier>sources</classifier>
+								</exclusion>
+
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>file-archive</artifactId>
+								</exclusion>
+
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>lbo</artifactId>
+								</exclusion>
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>lbo</artifactId>
+									<classifier>sources</classifier>
+								</exclusion>
+
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>service</artifactId>
+								</exclusion>
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>service</artifactId>
+									<classifier>sources</classifier>
+								</exclusion>
+
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>guide-common</artifactId>
+								</exclusion>
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>guide-common</artifactId>
+									<classifier>sources</classifier>
+								</exclusion>
+
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>bs-project</artifactId>
+								</exclusion>
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>bs-project</artifactId>
+									<classifier>sources</classifier>
+								</exclusion>
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>bs-actual</artifactId>
+								</exclusion>
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>bs-actual</artifactId>
+									<classifier>sources</classifier>
+								</exclusion>
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>bs-actual-common</artifactId>
+								</exclusion>
+
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>audit</artifactId>
+								</exclusion>
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>audit</artifactId>
+									<classifier>sources</classifier>
+								</exclusion>
+                                <exclusion>
+                                    <groupId>ru.nvacenter.bis</groupId>
+                                    <artifactId>audit-npa</artifactId>
+                                </exclusion>
+                                <exclusion>
+                                    <groupId>ru.nvacenter.bis</groupId>
+                                    <artifactId>audit-npa</artifactId>
+                                    <classifier>sources</classifier>
+                                </exclusion>
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>audit-violation-npa</artifactId>
+								</exclusion>
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>audit-violation-npa</artifactId>
+									<classifier>sources</classifier>
+								</exclusion>
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>audit-npa-common</artifactId>
+								</exclusion>
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>audit-npa-common</artifactId>
+									<classifier>sources</classifier>
+								</exclusion>
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>audit-violation</artifactId>
+								</exclusion>
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>audit-violation</artifactId>
+									<classifier>sources</classifier>
+								</exclusion>
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>audit-violation-list</artifactId>
+								</exclusion>
+								<exclusion>
+									<groupId>ru.nvacenter.bis</groupId>
+									<artifactId>audit-violation-list</artifactId>
+									<classifier>sources</classifier>
+								</exclusion>
+
+								<!-- And so on -->
+							</exclusions>
+							<options>
+								<!--<option>-keep class * { -->
+								<!--public *; -->
+								<!--} -->
+								<!--</option> -->
+							</options>
+							<!-- List external jars your application depends on (that not listed 
+								in maven dependencies). You probably depend on Java runtime (rt.jar). JCE 
+								stands for Java Cryptography Extension. You probably don't need it, but my 
+								application does. -->
+							<libs>
+								<lib>${java.home}/lib/rt.jar</lib>
+								<lib>${java.home}/lib/jce.jar</lib>
+								<lib>${java.home}/lib/ext/sunjce_provider.jar</lib>
+							</libs>
+							<putLibraryJarsInTempDir>true</putLibraryJarsInTempDir>
+						</configuration>
+					</plugin>
+
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>${version.antrun.plugin}</version>
+						<executions>
+							<execution>
+								<id>unzip-shaded.jar</id>
+								<phase>package</phase>
+								<configuration>
+									<target name="unzip shaded.jar">
+										<!-- помещает список лицензий зависимостей в папку license -->
+										<move
+											todir="${project.build.directory}\${project.build.finalName}\licenses">
+											<fileset
+												dir="${project.build.directory}\generated-sources\license" />
+										</move>
+
+										<!-- изначальный war больше не нужен -->
+										<delete file="${project.build.directory}\${warName}.war" />
+										<!-- это пустой war из-за бага в proguard plugin -->
+										<delete
+											file="${project.build.directory}\${project.build.finalName}-shaded.war" />
+
+										<unzip
+											src="${project.build.directory}\original-${project.build.finalName}-shaded.war"
+											dest="${project.build.directory}\${project.build.finalName}">
+											<patternset>
+												<!--<include name="**/security.properties"/> -->
+
+												<exclude name="**/jdbc.properties" />
+												<exclude name="**/smtp.properties" />
+												<exclude name="**/nsi.properties" />
+												<exclude name="**/fois.properties" />
+												<exclude name="**/logback.xml" />
+												<exclude name="**/persistence.xml" />
+											</patternset>
+										</unzip>
+
+										<!-- после распаковки объединённый war мне больше не нужен -->
+										<delete
+											file="${project.build.directory}\original-${project.build.finalName}-shaded.war" />
+
+										<delete
+											dir="${project.build.directory}\${project.build.finalName}\META-INF\maven" />
+
+										<delete
+											dir="${project.build.directory}\${project.build.finalName}\ru" />
+										<delete
+											dir="${project.build.directory}\${project.build.finalName}\WEB-INF\classes\ru\nvacenter\bis\app089\client\" />
+										<delete
+											dir="${project.build.directory}\${project.build.finalName}\WEB-INF\classes\ru\nvacenter\platform\" />
+
+										<!--после maven-shade-plugin по отдельности модули нашего веб-приложения 
+											больше не нужны, удаляем -->
+										<delete>
+											<fileset
+												dir="${project.build.directory}\${project.build.finalName}\WEB-INF\lib"
+												includes="*-1.*-SNAPSHOT.jar" />
+										</delete>
+
+										<move
+											todir="${project.build.directory}\${project.build.finalName}\WEB-INF\classes\META-INF\mappings"
+											overwrite="false" granularity="9223372036854">
+											<fileset
+												dir="${project.build.directory}\${project.build.finalName}\META-INF\mappings" />
+										</move>
+										<delete
+											dir="${project.build.directory}\${project.build.finalName}\META-INF\mappings" />
+
+										<move
+											todir="${project.build.directory}\${project.build.finalName}\WEB-INF\classes\META-INF\resources">
+											<fileset
+												dir="${project.build.directory}\${project.build.finalName}\META-INF\resources" />
+										</move>
+
+										<move
+											todir="${project.build.directory}\${project.build.finalName}\WEB-INF\classes\patternEmail">
+											<fileset
+												dir="${project.build.directory}\${project.build.finalName}\patternEmail" />
+										</move>
+
+										<move
+											todir="${project.build.directory}\${project.build.finalName}\WEB-INF\classes\spring">
+											<fileset
+												dir="${project.build.directory}\${project.build.finalName}\spring" />
+										</move>
+
+										<move
+											todir="${project.build.directory}\${project.build.finalName}\WEB-INF\classes">
+											<!-- TODO: пользовательские инструкции нужно поместить в подпапку 
+												docs, не хранить в корне -->
+											<fileset
+												file="${project.build.directory}\${project.build.finalName}\*.docx" />
+											<fileset
+												file="${project.build.directory}\${project.build.finalName}\*.properties" />
+											<fileset
+												file="${project.build.directory}\${project.build.finalName}\*.xml" />
+										</move>
+
+										<move
+											todir="${project.build.directory}\${project.build.finalName}\WEB-INF\classes\META-INF">
+											<fileset
+												file="${project.build.directory}\${project.build.finalName}\*.jsp" />
+										</move>
+
+										<delete
+											dir="${project.build.directory}\${project.build.finalName}\lib" />
+
+										<unwar
+											src="${project.build.directory}\${project.build.finalName}-obfuscated.war"
+											dest="${project.build.directory}\${project.build.finalName}\WEB-INF\classes">
+											<patternset>
+												<include name="**/*.class" />
+												<exclude name="**/*.jar" />
+											</patternset>
+										</unwar>
+
+										<delete
+											file="${project.build.directory}\${project.build.finalName}-obfuscated.war" />
+
+										<!-- перепаковка gwtupload.jar с целью выкинуть все клиентские 
+											.class файлы, тем самым убрать зависимость от gwt-user.jar -->
+										<jar update="true"
+											destfile="${project.build.directory}\${project.build.finalName}\WEB-INF\lib\gwtupload-server-${version.gwtupload}.jar">
+											<zipfileset
+												src="${project.build.directory}\${project.build.finalName}\WEB-INF\lib\gwtupload-${version.gwtupload}.jar">
+												<exclude name="gwtupload/client/**" />
+												<exclude name="gwtupload/*.gwt.xml" />
+												<exclude name="com/google/gwt/**" />
+											</zipfileset>
+										</jar>
+										<delete
+											file="${project.build.directory}\${project.build.finalName}\WEB-INF\lib\gwtupload-${version.gwtupload}.jar" />
+
+										<!-- перепаковка platform-gwt.jar с целью выкинуть все клиентские 
+											.class файлы -->
+										<jar update="true"
+											destfile="${project.build.directory}\${project.build.finalName}\WEB-INF\lib\platform-gwt-server-${version.platform.gwt}.jar">
+											<zipfileset
+												src="${project.build.directory}\${project.build.finalName}\WEB-INF\lib\platform-gwt-${version.platform.gwt}.jar">
+												<include name="ru/nvacenter/platform/gwt/user/**" />
+												<include
+													name="ru/nvacenter/platform/gwt/requestfactory/shared/**" />
+												<include
+													name="ru/nvacenter/platform/gwt/requestfactory/server/**" />
+											</zipfileset>
+										</jar>
+										<delete
+											file="${project.build.directory}\${project.build.finalName}\WEB-INF\lib\platform-gwt-${version.platform.gwt}.jar" />
+
+										<war destfile="${project.build.directory}\${warName}.war"
+											webxml="${project.build.directory}\${project.build.finalName}\WEB-INF\web.xml"
+											manifest="${project.build.directory}\${project.build.finalName}\META-INF\MANIFEST.MF">
+											<fileset
+												dir="${project.build.directory}\${project.build.finalName}" />
+										</war>
+
+									</target>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+
+				</plugins>
+			</build>
+		</profile>
+		<!-- deploy на тестовый WildFly -->
+		<profile>
+			<id>ci</id>
+			<properties>
+				<!-- имя файла при деплое в wildfly -->
+				<deployName>efoisDocFz</deployName>
+			</properties>
+			<build>
+				<plugins>
+					<!--The WildFly plugin deploys your war to a local WildFly container -->
+					<!--To use, run: mvn package wildfly:deploy -->
+					<plugin>
+						<groupId>org.wildfly.plugins</groupId>
+						<artifactId>wildfly-maven-plugin</artifactId>
+						<version>${version.wildfly.maven.plugin}</version>
+						<executions>
+							<execution>
+								<!-- вместо вызова цели widlfly:deploy подписываемся на фазу deploy 
+									из-за того что deploy можно вызвать на всех модулях maven -->
+								<phase>deploy</phase>
+								<goals>
+									<goal>deploy-only</goal>
+								</goals>
+								<configuration>
+									<filename>${warName}.war</filename>
+									<name>${deployName}.war</name>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+
+	</profiles>
+</project>

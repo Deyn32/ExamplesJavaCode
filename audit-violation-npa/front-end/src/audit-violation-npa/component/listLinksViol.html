@@ -1,0 +1,510 @@
+<div class="ui-g">
+    <div class="ui-g-12">
+        <div *ngIf="isProgressBar">
+            <div>{{statusBar}}</div>
+            <p-progressBar mode="indeterminate" [style]="{'height': '6px','weidth':'100%'}"></p-progressBar>
+        </div>
+    </div>
+</div>
+<div class="ui-g">
+    <div class="ui-g-{{gridLeftMenu}}">
+        <i class="fa fa-search" style="margin:4px 4px 0 0"></i>
+        <input #gb type="text" pInputText size="30" placeholder="Фильтр по № НПА и тексту">
+        <p-inputMask mask="99.99.9999" size="15" [(ngModel)]="dateFilter" placeholder="Фильтр по дате" slotChar="дд.мм.гггг"></p-inputMask>
+        <button type="button" pButton (click)="btnFilter()" icon="fa fa-filter" pTooltip="Актуальные нарушения на выбранную дату" tooltipPosition="bottom"></button>
+        <p-checkbox [(ngModel)]="checked" binary="true" (onChange)="onChange()"></p-checkbox>
+        <span>Только неопределенности</span>
+    </div>
+    <div class="ui-g-1">
+        <button type="button" pButton (click)="btnRefrash()" icon="fa fa-refresh" pTooltip="Обновить список" tooltipPosition="bottom" [disabled]="disRefrash"></button>
+    </div>
+    <span *ngIf="gridLeftMenu != 6; else elseBlockGridMenu"></span>
+    <ng-template #elseBlockGridMenu>
+        <div class="ui-g-{{gridRigthMenu}}">
+            <button type="button" pButton (click)="btnMergeRevs()" icon="fa fa-files-o" pTooltip="Сравнить текст двух редакций положения" tooltipPosition="bottom" [disabled]="disMergeRevs"></button>
+            <button type="button" pButton (click)="btnCompareStructViolAbs()" icon="fa fa-clipboard" pTooltip="Сравнить текст нарушения с текстом редакции положения" tooltipPosition="bottom" [disabled]="disCompareStruct"></button>
+            <button type="button" pButton (click)="btnRegrouping()" icon="fa fa-undo" pTooltip="Перегруппировать редакции" tooltipPosition="bottom" [disabled]="disRegrouping"></button>
+            <span style="margin-left: 10%">
+                <b>Редакции, сгруппированные по тексту положения</b>
+            </span>
+        </div>
+    </ng-template>
+</div>
+<div class="flex-auto layout-column" id="grid-content-container">
+    <div class="ui-g">
+        <div class="ui-g-{{gridViolTable}}">
+            <p-dataTable [value]="listLinks"
+                         emptyMessage=""
+                         [scrollable]="true"
+                         scrollHeight="307%"
+                         expandableRows="true"
+                         rowExpandMode="single"
+                         (onRowExpand)="onRowNPAExpand($event)"
+                         (onRowCollapse)="onRowNPACollapse($event)"
+                         (onFilter)="onFilterDoc($event)"
+                         [metaKeySelection]="false"
+                         [globalFilter]="gb" >
+                <p-footer style="text-align: left">
+                    <div>
+                        <b>Всего формулировок: {{lengthDataViol}}</b>
+                        <br><i>Найдено: {{lengthFilter}}</i>
+                    </div>
+                </p-footer>
+                <p-column expander="true" styleClass="col-icon" [style]="{'width':'5%'}"></p-column>
+                <p-column field="text" header="Нарушения"></p-column>
+                <p-column field="dtBegin" header="Дата начала" [excludeGlobalFilter]="true" [editable]="true" [style]="{'width':'14%'}">
+                    <ng-template pTemplate="body" let-col let-row="rowData">
+                        <span *ngIf="row != null">{{row[col.field] | date: 'dd.MM.yyyy'}}</span>
+                    </ng-template>
+                </p-column>
+                <p-column field="dtEnd" header="Дата окончания" [excludeGlobalFilter]="true" [editable]="true" [style]="{'width':'14%'}">
+                    <ng-template pTemplate="body" let-col let-row="rowData">
+                        <span  *ngIf="row[col.field] != null">{{row[col.field] | date: 'dd.MM.yyyy'}}</span>
+                    </ng-template>
+                </p-column>
+                <p-column styleClass="col-button" [style]="{'width':'6%'}">
+                    <ng-template let-row="rowData" pTemplate="body">
+                        <div>
+                            <button type="button" pButton (click)="btnEditDateViol(row)" icon="fa-pencil-square-o" pTooltip="Редактирование дат" tooltipPosition="top"></button>
+                        </div>
+                    </ng-template>
+                </p-column>
+                <p-column field="filterText" hidden="true"></p-column>
+                <ng-template let-row pTemplate="rowexpansion">
+                    <p-dataTable [value]="row.links"
+                                 [globalFilter]="gb"
+                                 emptyMessage=""
+                                 [scrollable]="true"
+                                 scrollHeight="250px"
+                                 [metaKeySelection]="false"
+                                 selectionMode="single"
+                                 [(selection)]="selectedLinks"
+                                 (onFilter)="onFilterLinks($event)"
+                                 (onRowSelect)="onRowSelectLink($event)">
+                        <p-column field="npa.num" hidden="true"></p-column>
+                        <p-column field="npa" header="Документ НПА" [style]="{'text-align':'center'}">
+                            <ng-template pTemplate="body" let-col let-row="rowData">
+                                <span pTooltip="{{row[col.field].text}}" tooltipPosition="right">
+                                    <span *ngIf="row[col.field].deleted; else elseBlock">
+                                        *№ {{row[col.field].num}} от {{row[col.field].date | date: 'dd.MM.yyyy'}}
+                                    </span>
+                                    <ng-template #elseBlock>
+                                        № {{row[col.field].num}} от {{row[col.field].date | date: 'dd.MM.yyyy'}}
+                                    </ng-template>
+                                </span>
+                            </ng-template>
+                        </p-column>
+                        <p-column field="text" header="Положение" [excludeGlobalFilter]="true" [style]="{'text-align':'center'}"></p-column>
+                        <p-column field="error" header="Комментарий" [excludeGlobalFilter]="true" [style]="{'text-align':'center'}"></p-column>
+                        <span *ngIf="checked">
+                            <p-column field="status" header="Статус" [excludeGlobalFilter]="true" [style]="{'text-align':'center'}">
+                                <ng-template pTemplate="body" let-col let-row="rowData">
+                                    <span style="color: grey">{{row[col.field] == false ? "" : "Не определено"}}</span>
+                                </ng-template>
+                            </p-column>
+                        </span>
+                    </p-dataTable>
+                </ng-template>
+            </p-dataTable>
+        </div>
+        <span *ngIf="gridViolTable != 7; else elseGridBlock"></span>
+        <ng-template #elseGridBlock>
+            <div class="ui-g-{{gridRevsTable}}">
+                <p-dataTable [value]="listRevsLinks"
+                             emptyMessage=""
+                             expandableRows="true"
+                             [editable]="true"
+                             [scrollable]="true"
+                             scrollHeight="307%"
+                             (onRowCollapse)="onRowRevLinkCollapse()"
+                             rowExpandMode="single"
+                             [metaKeySelection]="false">
+                    <p-column [style]="{'width':'30px'}" field="row.revisions">
+                        <ng-template let-col let-row="rowData" pTemplate="body">
+                            <span *ngIf="row.disabled; else elseBlock">
+                                <button type="button" pButton (click)="btnNotSelect()" icon="" class="ui-button-secondary" style="font-size: 0.5em;background: white;"></button>
+                            </span>
+                            <ng-template #elseBlock>
+                                <p-checkbox selectionMode="multiple" [value]="row" [(ngModel)]="valuesForMerge"
+                                            (onChange)="onMergeSelected()"></p-checkbox>
+                            </ng-template>
+                        </ng-template>
+                    </p-column>
+                    <p-column expander="true" styleClass="col-icon" [style]="{'width':'6%'}"></p-column>
+                    <p-column styleClass="col-button" [style]="{'width':'7%'}">
+                        <ng-template let-row="rowData" pTemplate="body">
+                            <div>
+                                <button type="button" pButton (click)="btnViewStruct(row)" icon="fa fa-eye"
+                                        pTooltip="Просмотр текста положения" tooltipPosition="bottom"></button>
+                            </div>
+                        </ng-template>
+                    </p-column>
+                    <p-column header="Дата действия редакции">
+                        <ng-template pTemplate="body" let-row="rowData">
+                            <span *ngIf="row.dtStart != null; else elseDateStartBlock">
+                                <span *ngIf="row.dtEnd != null; else elseDateEndBlock">
+                                    С {{row.dtStart | date: 'dd.MM.yyyy'}} по {{row.dtEnd | date: 'dd.MM.yyyy'}}
+                                </span>
+                                <ng-template #elseDateEndBlock>
+                                    C {{row.dtStart | date: 'dd.MM.yyyy'}}
+                                </ng-template>
+                            </span>
+                            <ng-template #elseDateStartBlock>
+                                <span *ngIf="row.dtEnd != null">
+                                    По {{dtEnd | date: 'dd.MM.yyyy'}}
+                                </span>
+                            </ng-template>
+                        </ng-template>
+                    </p-column>
+                    <p-column field="structElemRevState" header="">
+                        <ng-template pTemplate="body" let-col let-row="rowData">
+                            <span [ngSwitch]="row[col.field]">
+                                <ng-template ngSwitchCase="NONE"></ng-template>
+                                <ng-template ngSwitchCase="NOT_ANALYSED">
+                                    <span style="color: grey">Не анализировалась</span>
+                                </ng-template>
+                                <ng-template ngSwitchCase="NOT_FOUND">
+                                    <span style="color:red">Не найдено положение в редакции</span>
+                                </ng-template>
+                            </span>
+                        </ng-template>
+                    </p-column>
+                    <p-column field="state" header="Соответствие ФН и редакции" [editable]="true">
+                        <ng-template pTemplate="body" let-col let-row="rowData">
+                            <span [ngSwitch]="row[col.field]">
+                                <ng-template ngSwitchCase="YES">
+                                    <span style="color:green">Да</span>
+                                </ng-template>
+                                <ng-template ngSwitchCase="NO">
+                                    <span style="color:red">Нет</span>
+                                </ng-template>
+                                <ng-template ngSwitchCase="NOT_KNOWN">
+                                    <span style="color:grey">Не определено</span>
+                                </ng-template>
+                            </span>
+                        </ng-template>
+                        <ng-template let-col let-row="rowData" pTemplate="editor">
+                            <span *ngIf="row.structElemRevState == 'NONE'; else elseBlockSaveState">
+                                <p-dropdown [(ngModel)]="row[col.field]"
+                                                [options]="statusDropDown"
+                                                (onChange)="onChangeStatus(row)"
+                                                (onFocus)="onFocusStatus(row)"
+                                                [autoWidth]="false"
+                                                [style]="{'width':'100%'}"
+                                                [disabled]="disableStatus"
+                                                required="true"  appendTo="body">
+                                </p-dropdown>
+                            </span>
+                            <ng-template #elseBlockSaveState>
+                                <span [ngSwitch]="row[col.field]">
+                                    <ng-template ngSwitchCase="YES">
+                                        <span style="color:green">Да</span>
+                                    </ng-template>
+                                    <ng-template ngSwitchCase="NO">
+                                        <span style="color:red">Нет</span>
+                                    </ng-template>
+                                    <ng-template ngSwitchCase="NOT_KNOWN">
+                                        <span style="color:grey">Не определено</span>
+                                    </ng-template>
+                                </span>
+                            </ng-template>
+                        </ng-template>
+                    </p-column>
+                    <ng-template let-row pTemplate="rowexpansion">
+                        <div class="ui-g">
+                            <div class="ui-g-2"></div>
+                            <div class="ui-g-10">
+                                <p-dataTable [value]="row.revisions"
+                                                 selectionMode="single"
+                                                 emptyMessage=""
+                                                 [metaKeySelection]="false">
+                                    <p-column header="Редакция">
+                                        <ng-template pTemplate="body" let-col let-row="rowData">
+                                            <span *ngIf="row.isDeleted;">
+                                                *
+                                            </span>
+                                            <span *ngIf="row.dtRev != null; else elseBlockLink">
+                                                <span *ngIf="row.dtNPA != row.dtRev; else elseDateRevLink">
+                                                    От {{row.dtRev | date: 'dd.MM.yyyy'}}
+                                                </span>
+                                                <ng-template #elseDateRevLink>
+                                                    Первоначальная
+                                                </ng-template>
+                                            </span>
+                                            <ng-template #elseBlockLink>
+                                                Первоначальная
+                                            </ng-template>
+                                        </ng-template>
+                                    </p-column>
+                                    <p-column field="dtBegin" header="Вступает в силу с">
+                                        <ng-template pTemplate="body" let-col let-row="rowData">
+                                            {{row[col.field] | date: 'dd.MM.yyyy'}}
+                                        </ng-template>
+                                    </p-column>
+                                    <p-column field="dtEnd" header="Действует по">
+                                        <ng-template pTemplate="body" let-col let-row="rowData">
+                                            {{row[col.field] | date: 'dd.MM.yyyy'}}
+                                        </ng-template>
+                                    </p-column>
+                                </p-dataTable>
+                            </div>
+                        </div>
+                    </ng-template>
+                </p-dataTable>
+            </div>
+        </ng-template>
+    </div>
+</div>
+<!--Сообщение о смене статуса-->
+<p-growl [value]="msgs"></p-growl>
+<!--Диалог сравнения редакций положения-->
+<p-dialog [(visible)]="disDialogMergeStruct" [width]="1020" [height]="600">
+    <p-header>
+        <div style="text-align: center">
+            Редакции
+            <span *ngIf="dtBegin1 != null; else elseDateStartBlock">
+            <span *ngIf="dtEnd1 != null; else elseDateEndBlock">
+                c {{dtBegin1 | date: 'dd.MM.yyyy'}} по {{dtEnd1 | date: 'dd.MM.yyyy'}}
+            </span>
+                <ng-template #elseDateEndBlock>
+                    c {{dtBegin1 | date: 'dd.MM.yyyy'}}
+                </ng-template>
+        </span>
+            <ng-template #elseDateStartBlock>
+            <span *ngIf="dtEnd1 != null">
+                по {{dtEnd1 | date: 'dd.MM.yyyy'}}
+            </span>
+            </ng-template>
+        </div>
+    </p-header>
+    <p-scrollPanel [style]="{width: '100%', height: '500px'}">
+        <div style="padding:1em;line-height:1.5">
+            <p-tree [value]="structLink"
+                    [style]="{'width':'100%'}"
+                    expanded="true">
+                <ng-template let-node  pTemplate="default">
+                            <span style="white-space: normal">
+                                {{node.data.label}}
+                            </span>
+                </ng-template>
+            </p-tree>
+        </div>
+    </p-scrollPanel>
+</p-dialog>
+<!--Диалог сохранения статуса-->
+<p-dialog [(visible)]="disSaveState" [closable]="false">
+    <p-header>
+        Сохранение статуса
+    </p-header>
+    Вы уверены, что хотите поменять статус?
+    <p-footer>
+        <button type="button" pButton (click)="btnYesSaveState()" label="Да"></button>
+        <button type="button" pButton (click)="btnCancelSaveState()" label="Отмена"></button>
+    </p-footer>
+</p-dialog>
+<!-- Диаложек сравнения редакций и текста НПА -->
+<p-dialog [(visible)]="disMergeTreeDialog" [width]="1200" [height]="600">
+    <p-header>
+        <div class="ui-g">
+            <div class="ui-g-12 compareDialog">
+                Документ № {{npa.num}} от {{npa.date | date: 'dd.MM.yyyy'}} {{linkText}}
+            </div>
+        </div>
+        <span *ngIf="isDiffs">
+            <div class="ui-g">
+                <div class="ui-g-12">
+                    <span style="font-size: 0.7em">
+                        {{hashDiffs}}
+                    </span>
+                </div>
+            </div>
+        </span>
+    </p-header>
+    <div class="ui-g">
+        <div class="ui-g-6 compareDialog">
+            {{text1}}
+            <span *ngIf="dtBegin1 != null; else elseDateStartBlock">
+                <span *ngIf="dtEnd1 != null; else elseDateEndBlock">
+                    С {{dtBegin1 | date: 'dd.MM.yyyy'}} по {{dtEnd1 | date: 'dd.MM.yyyy'}}
+                </span>
+                <ng-template #elseDateEndBlock>
+                    C {{dtBegin1 | date: 'dd.MM.yyyy'}}
+                </ng-template>
+            </span>
+            <ng-template #elseDateStartBlock>
+                <span *ngIf="dtEnd1 != null">
+                    По {{dtEnd | date: 'dd.MM.yyyy'}}
+                </span>
+            </ng-template>
+        </div>
+        <div class="ui-g-6 compareDialog">
+            {{text2}}
+             <span *ngIf="dtBegin2 != null; else elseDateStartBlock">
+                 <span *ngIf="dtEnd2 != null; else elseDateEndBlock">
+                     С {{dtBegin2 | date: 'dd.MM.yyyy'}} по {{dtEnd2 | date: 'dd.MM.yyyy'}}
+                 </span>
+                 <ng-template #elseDateEndBlock>
+                     C {{dtBegin2 | date: 'dd.MM.yyyy'}}
+                 </ng-template>
+             </span>
+            <ng-template #elseDateStartBlock>
+                <span *ngIf="dtEnd2 != null">
+                    По {{dtEnd2 | date: 'dd.MM.yyyy'}}
+                </span>
+            </ng-template>
+        </div>
+    </div>
+    <!--Левая таблица-->
+    <div class="ui-g">
+        <div class="ui-g-6">
+            <p-scrollPanel [style]="{width: '100%', height: '320px'}" styleClass="custombar2">
+                <p-tree [value]="valueTree.children" [style]="{'width':'100%'}">
+                    <ng-template let-node pTemplate="default">
+                        <span *ngIf="node != null">
+                            <span *ngIf="node.diffs == null; else elseBlockDiffs">
+                                <span *ngIf="node.nodeLeft != null; else elseBlock">
+                                    <span *ngIf="node.nodeLeft.data != null; else elseBlockTree">
+                                        <span *ngIf="node.nodeLeft.data.name != null">
+                                            <span *ngIf="node.nodeRight != null; else elseBlockRight1">
+                                                <span *ngIf="node.nodeRight.data != null; else elseBlockRight2">
+                                                    <span *ngIf="node.nodeRight.data.name != null">
+                                                        <span *ngIf="node.nodeRight.data.name == node.nodeLeft.data.name">
+                                                            <span *ngIf="sizeLevel; else elseWhiteSpace1">
+                                                                <span style="white-space: pre-wrap" data-tooltip="sw" title="{{node.nodeLeft.data.name}}">{{node.nodeLeft.data.name}}</span>
+                                                            </span>
+                                                            <ng-template #elseWhiteSpace1>
+                                                                <span data-tooltip="sw" title="{{node.nodeLeft.data.name}}">{{node.nodeLeft.data.name}}</span>
+                                                            </ng-template>
+                                                        </span>
+                                                    </span>
+                                                </span>
+                                                <ng-template #elseBlockRight2>
+                                                    <span *ngIf="sizeLevel; else elseWhiteSpace2">
+                                                        <span style="white-space: pre-wrap" class="brownNode" data-tooltip="sw" title="{{node.nodeLeft.data.name}}">{{node.nodeLeft.data.name}}</span>
+                                                    </span>
+                                                    <ng-template #elseWhiteSpace2>
+                                                        <span class="brownNode" data-tooltip="sw" title="{{node.nodeLeft.data.name}}">{{node.nodeLeft.data.name}}</span>
+                                                    </ng-template>
+                                                </ng-template>
+                                            </span>
+                                            <ng-template #elseBlockRight1>
+                                                <span *ngIf="sizeLevel; else elseWhiteSpace3">
+                                                    <span style="white-space: pre-wrap" class="brownNode" data-tooltip="sw" title="{{node.nodeLeft.data.name}}">{{node.nodeLeft.data.name}}</span>
+                                                </span>
+                                                <ng-template #elseWhiteSpace3>
+                                                    <span class="brownNode" data-tooltip="sw" title="{{node.nodeLeft.data.name}}">{{node.nodeLeft.data.name}}</span>
+                                                </ng-template>
+                                            </ng-template>
+                                        </span>
+                                    </span>
+                                    <ng-template #elseBlockTree>
+                                        <input type="text" disabled="true" style="background-color: grey;width:820px;height:20px">
+                                    </ng-template>
+                                </span>
+                                <ng-template #elseBlock>
+                                    <input type="text" disabled="true" style="background-color: grey;width:820px;height:20px">
+                                </ng-template>
+                            </span>
+                            <ng-template #elseBlockDiffs>
+                                <span *ngIf="sizeLevel; else elseWhiteSpace4">
+                                    <div style="white-space: pre-wrap" [innerHtml]="node.htmlLeft" data-tooltip="sw" title="{{node.nodeLeft.data.name}}"></div>
+                                </span>
+                                <ng-template #elseWhiteSpace4>
+                                    <div [innerHtml]="node.htmlLeft" data-tooltip="sw" title="{{node.nodeLeft.data.name}}"></div>
+                                </ng-template>
+                            </ng-template>
+                        </span>
+                    </ng-template>
+                </p-tree>
+            </p-scrollPanel>
+        </div>
+        <!-- Правая таблица -->
+        <div class="ui-g-6">
+            <p-scrollPanel [style]="{width: '100%', height: '320px'}" styleClass="custombar2">
+                <p-tree [value]="valueTree.children" [style]="{'width':'100%'}">
+                    <ng-template let-node pTemplate="default">
+                        <span *ngIf="node != null">
+                            <span *ngIf="node.diffs == null; else elseBlockDiffs">
+                                <span *ngIf="node.nodeRight != null; else elseBlock">
+                                    <span *ngIf="node.nodeRight.data != null; else elseBlockTree">
+                                        <span *ngIf="node.nodeRight.data.name != null">
+                                            <span *ngIf="node.nodeLeft != null; else elseBlockRight1">
+                                                <span *ngIf="node.nodeLeft.data != null; else elseBlockRight2">
+                                                    <span *ngIf="node.nodeLeft.data.name != null">
+                                                        <span *ngIf="node.nodeRight.data.name == node.nodeLeft.data.name">
+                                                            <span *ngIf="sizeLevel; else elseWhiteSpace1">
+                                                                <span style="white-space: pre-wrap" data-tooltip="sw" title="{{node.nodeRight.data.name}}">{{node.nodeRight.data.name}}</span>
+                                                            </span>
+                                                            <ng-template #elseWhiteSpace1>
+                                                                <span data-tooltip="sw" title="{{node.nodeRight.data.name}}">{{node.nodeRight.data.name}}</span>
+                                                            </ng-template>
+                                                        </span>
+                                                    </span>
+                                                </span>
+                                                <ng-template #elseBlockRight2>
+                                                    <span *ngIf="sizeLevel; else elseWhiteSpace2">
+                                                        <span style="white-space: pre-wrap" class="brownNode" data-tooltip="sw" title="{{node.nodeRight.data.name}}">{{node.nodeRight.data.name}}</span>
+                                                    </span>
+                                                    <ng-template #elseWhiteSpace2>
+                                                        <span class="brownNode" data-tooltip="sw" title="{{node.nodeRight.data.name}}">{{node.nodeRight.data.name}}</span>
+                                                    </ng-template>
+                                                </ng-template>
+                                            </span>
+                                            <ng-template #elseBlockRight1>
+                                                <span *ngIf="sizeLevel; else elseWhiteSpace3">
+                                                    <span style="white-space: pre-wrap" class="brownNode" data-tooltip="sw" title="{{node.nodeRight.data.name}}">{{node.nodeRight.data.name}}</span>
+                                                </span>
+                                                <ng-template #else elseWhiteSpace3>
+                                                    <span class="brownNode" data-tooltip="sw" title="{{node.nodeRight.data.name}}">{{node.nodeRight.data.name}}</span>
+                                                </ng-template>
+                                            </ng-template>
+                                        </span>
+                                    </span>
+                                    <ng-template #elseBlockTree>
+                                        <input type="text" disabled="true" style="background-color: grey;width:820px;height:20px">
+                                    </ng-template>
+                                </span>
+                            <ng-template #elseBlock>
+                                <input type="text" disabled="true" style="background-color: grey;width:820px;height:20px">
+                            </ng-template>
+                        </span>
+                        <ng-template #elseBlockDiffs>
+                            <span *ngIf="sizeLevel; else elseWhiteSpace4">
+                                <div style="white-space: pre-wrap" [innerHtml]="node.htmlRight" data-tooltip="sw" title="{{node.nodeRight.data.name}}"></div>
+                            </span>
+                            <ng-template #elseWhiteSpace4>
+                                <div [innerHtml]="node.htmlRight" data-tooltip="sw" title="{{node.nodeRight.data.name}}"></div>
+                            </ng-template>
+                        </ng-template>
+                    </span>
+                    </ng-template>
+                </p-tree>
+            </p-scrollPanel>
+        </div>
+    </div>
+</p-dialog>
+<!--Диалог редактирования дат нарушения -->
+<p-blockUI [blocked]="blockedPanel"></p-blockUI>
+<p-dialog header="Редактирование дат нарушения" [(visible)]="disEditDateViol" [width]="550" [height]="500" [closable]="false">
+    <form #EditDateViolForm="ngForm" class="ng-pristine ng-untouched ng-valid" novalidate="" (ngSubmit)="Submit()">
+        <div class="ui-g">
+            <div class="ui-g-7">
+                <span style="font-weight: bold">Дата начала:</span>
+                <p-calendar name="dtBegin" [(ngModel)]="dtBeginViol" showButtonBar="true" [locale]="rus" dateFormat="dd.mm.yy"></p-calendar>
+            </div>
+            <div class="ui-g-5">
+                <button type="submit" pButton label="Сохранить"></button>
+            </div>
+        </div>
+        <div class="ui-g">
+            <div class="ui-g-7">
+                <span style="font-weight: bold">Дата окончания:</span>
+                <p-calendar name="dtEnd" [(ngModel)]="dtEndViol" showButtonBar="true" [locale]="rus" dateFormat="dd.mm.yy"></p-calendar>
+            </div>
+            <div class="ui-g-5">
+                <button type="button" pButton (click)="btnCancelDateViol()" label="Отмена"></button>
+            </div>
+        </div>
+        <textarea pInputTextarea style="opacity:0;" rows="15" autoResize="true" disabled="true"></textarea>
+    </form>
+</p-dialog>

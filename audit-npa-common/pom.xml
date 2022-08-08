@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<parent>
+		<relativePath>../gwt-parent/pom.xml</relativePath>
+		<groupId>ru.nvacenter.bis</groupId>
+		<artifactId>gwt-parent</artifactId>
+		<version>1.0-SNAPSHOT</version>
+	</parent>
+
+	<modelVersion>4.0.0</modelVersion>
+	<artifactId>audit-npa-common</artifactId>
+	<packaging>jar</packaging>
+
+	<dependencies>
+		<dependency>
+			<groupId>ru.nvacenter.bis</groupId>
+			<artifactId>core</artifactId>
+			<version>1.1-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+	<build>
+		<finalName>audit-npa-common</finalName>
+		<resources>
+			<!-- Включает в jar исходники, .css, картинки и пр. файлы необходимое 
+				для компиляции gwt -->
+			<resource>
+				<directory>src/main/java</directory>
+			</resource>
+			<!-- Включает в jar конфигурационные файлы, такие как web-fragment.xml -->
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+		</resources>
+	</build>
+</project>

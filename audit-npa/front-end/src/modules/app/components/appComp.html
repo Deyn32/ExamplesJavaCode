@@ -1,0 +1,480 @@
+<div [style.display]="(flag == true) ? 'block' : 'none'">
+    <p-toolbar item-width="320px">
+        <div class="ui-g">
+             <div class="ui-g-12">
+                 <div *ngIf="isProgressBar">
+                     <p-progressBar mode="indeterminate" [style]="{'height': '6px','weidth':'100%'}"></p-progressBar>
+                 </div>
+             </div>
+        </div>
+        <div class="ui-g">
+         <div class="ui-g-12">
+             <div class="ui-toolbar-group-left">
+                 <i class="fa fa-search" style="margin:4px 4px 0 0"></i>
+                 <input #gb type="text" pInputText size="50" placeholder="Поиск">
+                 <button type="button" pButton (click)="btnPaste()" icon="fa-file-o" label="Добавить НПА" class="ui-button-success"></button>
+                 <button type="button" pButton (click)="btnEdit()" icon="fa-pencil-square-o" label="Редактировать НПА" [disabled]="editFlag"></button>
+                 <button type="button" pButton (click)="btnDelete()" icon="fa-trash-o" label="Удалить НПА" [disabled]="delFlag" class="ui-button-danger"></button>
+                 <button type="button" pButton (click)="btnRefresh()" icon="fa-refresh" pTooltip="Обновить" tooltipPosition="top"></button>
+             </div>
+             <div class="ui-toolbar-group-right">
+                 <br>
+                 <a href="./directory/fzDownloadManual" title="Руководство пользователя" download style="margin-left: 50px">Инструкция пользователя</a>
+             </div>
+            </div>
+        </div>
+    </p-toolbar>
+    <div class="flex-auto layout-column" id="grid-content-container">
+        <p-blockUI [target]="dt" [blocked]="blockedTable"></p-blockUI>
+            <p-dataTable [value]="documentsForTable"
+                     [globalFilter]="gb"
+                     emptyMessage=""
+                     [immutable]="false"
+                     scrollable="false"
+                     scrollHeight="327%"
+                     expandableRows="true"
+                     rowExpandMode="single"
+                     [expandedRows]="expanded"
+                     selectionMode="single"
+                     [(selection)]="selectedDocList"
+                     (onRowClick)="onClickRowTable($event)"
+                     (onRowExpand)="onRowExpand($event)"
+                     (onRowCollapse)="onRowCollapse($event)"
+                     (onFilter)="onFilterDoc($event)"
+                     [rowTrackBy]="rowTrackBy"
+                     dataKey="id"
+                     [metaKeySelection]="false" #dt>
+            <p-footer>
+                <div style="text-align:left;font-weight:bold">Всего документов: {{lengthDoc}} Найдено: {{lengthDocFilter}}</div>
+            </p-footer>
+            <!-- Колонки таблицы -->
+            <p-column expander="true" styleClass="col-icon" [style]="{'width':'3%'}"></p-column>
+            <p-column field="num" header="№" [sortable]="true" [style]="{'width':'7%','text-align':'center'}">
+                <ng-template let-col let-row="rowData" pTemplate="body">
+                    <div [style.font-weight]="(row.hasData == true) ? 'bold' : 'normal'">
+                        <span>{{  row[col.field] }}</span>
+                    </div>
+                </ng-template>
+            </p-column>
+            <p-column field="date" header="Дата" [sortable]="true" [style]="{'width':'10%','text-align':'center'}">
+                <ng-template let-col let-row="rowData" pTemplate="body">
+                    <span>{{row[col.field]}}</span>
+                </ng-template>
+            </p-column>
+            <p-column field="name" header="Наименование" [sortable]="true" [style]="{'width':'62%'}"></p-column>
+            <p-column field="docType.name" header="Вид" [sortable]="true" [excludeGlobalFilter]="true" [style]="{'width':'10%','text-align':'center'}" ></p-column>
+            <p-column field="editing" header="Тип НПА" [sortable]="true" [excludeGlobalFilter]="true" [style]="{'width':'8%','text-align':'center'}" [filter]="true" filterMatchMode="contains">
+                <ng-template let-col let-row="rowData" pTemplate="body">
+                    {{row[col.field] == true ? "Изм." : "Осн."}}
+                </ng-template>
+                <ng-template pTemplate="filter" let-col>
+                    <p-dropdown [options]="docTypeFilters" [(ngModel)]="selectedEditingDrop" [style]="{'width':'100%','font-size':'0.6em'}" (onChange)="dt.filter($event.value,col.field,col.filterMatchMode)" styleClass="ui-column-filter" inputId="selectedEditingDrop"></p-dropdown>
+                </ng-template>
+            </p-column>
+            <ng-template let-car pTemplate="rowexpansion">
+                <div class="ui-g">
+                    <div class="ui-g-7" style="margin-left: 50px;">
+                        <p-toolbar>
+                            <div class="ui-toolbar-group-left">
+                                <button type="button" pButton (click)="btnAddRev()" icon="fa-file-o" label="Добавить" class="ui-button-success"></button>
+                                <button type="button" pButton (click)="btnMergeAndCompare()" [(disabled)]="mergeDisabled" label="Сравнить текст"></button>
+                                <button type="button" pButton (click)="blockedTable = true; btnCompareStruct();" [(disabled)]="compareDisabled" label="Сравнить структуру"></button>
+                            </div>
+                            <div class="ui-toolbar-group-right">
+                                <p-fileUpload #fileload url="" chooseLabel="Загрузить файл текста редакции" name="uploadedFileRef" mode="basic" auto="true" (onBeforeSend)="onBeforeSendUploadFile($event)" (onUpload)="onUploadFile($event)" (onSelect)="onSelectUploadFile($event)" accept=".txt"></p-fileUpload>
+                            </div>
+                        </p-toolbar>
+                        <!-- Таблица редакций -->
+                        <p-dataTable [value]="tableRevValue"
+                                     emptyMessage=""
+                                     [scrollable]="true"
+                                     scrollHeight="120%"
+                                     selectionMode="single"
+                                     [(selection)]="modelFormRevision"
+                                     (onRowSelect)="onRowRevSelect($event)">
+                            <p-footer>
+                                <div style="text-align:left;font-weight:bold">Всего редакций: {{lengthRev}}</div>
+                            </p-footer>
+                            <p-column [style]="{'width':'30px'}" field="idRev">
+                                <ng-template let-col let-row="rowData" pTemplate="body">
+                                    <p-checkbox name="groupname" [value]="row[col.field]" [(ngModel)]="valuesForMerge" (onChange)="onMergeSelected()" [disabled]="row.disabled"></p-checkbox>
+                                </ng-template>
+                            </p-column>
+                            <!-- Столбец для кнопок -->
+                            <p-column styleClass="col-button" [style]="{'width':'152px'}">
+                                <ng-template let-row="rowData" pTemplate="body">
+                                    <div>
+                                        <button type="button" pButton (click)="btnEditRev(row)" icon="fa-pencil-square-o" pTooltip="Редактирование" tooltipPosition="top"></button>
+                                        <button type="button" pButton (click)="btnViewStruct(row)" icon="fa fa-search" pTooltip="Редактирование структуры" tooltipPosition="top"></button>
+                                        <button type="button" pButton (click)="btnViewImage(row)" icon="fa fa-eye" pTooltip="Просмотр образа" tooltipPosition="top"></button>
+                                        <button type="button" pButton (click)="btnDelRev(row)" icon="fa-trash-o" pTooltip="Удаление" tooltipPosition="top" class="ui-button-danger"></button>
+                                    </div>
+                                </ng-template>
+                            </p-column>
+                            <p-column field="dtRev" header="Редакции НПА" [style]="{'width':'180px'}">
+                                <ng-template let-col let-row="rowData" pTemplate="body">
+                                    <span *ngIf="row.loaded == true; else elseBlockStyle">
+                                        <div [style.font-weight]="'bold'">
+                                            <span *ngIf="row.idRev == null; else elseRevBlock1">Первоначальная</span>
+                                            <ng-template #elseRevBlock1>
+                                                <span *ngIf="row.original; else elseRevBlock2">Первоначальная</span>
+                                                <ng-template #elseRevBlock2>
+                                                    <span> ред. от {{  row[col.field] | date: 'dd.MM.yyyy' }}</span>
+                                                </ng-template>
+                                            </ng-template>
+                                        </div>
+                                    </span>
+                                    <ng-template #elseBlockStyle>
+                                        <div [style.font-weight]="'normal'">
+                                            <span *ngIf="row.idRev == null; else elseRevBlock1">Первоначальная</span>
+                                            <ng-template #elseRevBlock1>
+                                                <span *ngIf="row.original; else elseRevBlock2">Первоначальная</span>
+                                                <ng-template #elseRevBlock2>
+                                                    <span> ред. от {{  row[col.field] | date: 'dd.MM.yyyy' }}</span>
+                                                </ng-template>
+                                            </ng-template>
+                                        </div>
+                                    </ng-template>
+                                </ng-template>
+                            </p-column>
+                            <p-column field="npaRevDoc" header="НПА, которым внесены изменения">
+                                <ng-template let-col let-row="rowData" pTemplate="body">
+                                    <div>
+                                        <span [style.display]="row[col.field] == null ? 'inline' : 'none'">Без документа</span>
+                                        <span [style.display]="row[col.field] == null ? 'none' : 'inline'"> № {{ row[col.field] == null ? "" :  row[col.field].num }} от {{ row[col.field] == null ? "" :  row[col.field].dt | date: 'dd.MM.yyyy' }}</span>
+                                    </div>
+                                </ng-template>
+                            </p-column>
+                            <p-column field="dtBegin" header="Вступает в силу с">
+                                <ng-template let-col let-row="rowData" pTemplate="body">
+                                    <div>{{  row[col.field] | date: 'dd.MM.yyyy' }}</div>
+                                </ng-template>
+                            </p-column>
+                        </p-dataTable>
+                    </div>
+                </div>
+            </ng-template>
+        </p-dataTable>
+    </div>
+    <!-- Диалоговое окно полосы загрузки -->
+    <div>
+        <p-dialog [(visible)]="displayLoading" [style]="{'border':'2px solid #0242FF'}">
+            <p-header>
+                Пожалуйста, подождите...
+            </p-header>
+            <div class="imageContainer glass">
+                <img src="../images/loading.gif" width="350" height="40" border="0" />
+            </div>
+        </p-dialog>
+    </div>
+    <!-- Всплывающее окно информации -->
+    <div>
+        <p-growl [(value)]="msgs" [sticky]="true"></p-growl>
+    </div>
+    <!-- Диалоговое окно для добавления/редактирования документа -->
+    <p-dialog [(visible)]="displayPaste" width="585" height="500" [style]="{'border':'2px solid #0242FF'}">
+        <p-header>
+            <span>{{modelFormDocs.id == null ? "Добавить" : "Редактировать"}}</span>
+        </p-header>
+            <form #addForm="ngForm" class="ng-pristine ng-untouched ng-valid" novalidate="" (ngSubmit)="docSubmit()">
+                <input type="hidden" name="id" [(ngModel)]="modelFormDocs.id"/>
+                <p>
+                    <span style="font-weight: bold">
+                        Номер НПА:
+                    </span>
+                    <input type="text" size="5" name="number" pInputText [(ngModel)]="modelFormDocs.num"/>
+                </p>
+                <p>
+                    <span style="font-weight: bold">
+                        Дата НПА:
+                    </span>
+                    <p-calendar name="date" [(ngModel)]="modelFormDocs.dt" dateFormat="dd.mm.yy" [locale]="rus" [monthNavigator]="true" [yearNavigator]="true" yearRange="1950:2050" [showIcon]="true" styleClass="calendarOverFlow"></p-calendar>
+                </p>
+                <p>
+                    <span style="font-weight: bold">
+                        Тип НПА:
+                    </span>
+                    <p-dropdown [options]="arrTypes" name="type" [(ngModel)]="modelFormDocs.type" [style]="{'width':'250px'}" inputId="modelFormDocs.type"></p-dropdown>
+                </p>
+                <p>
+                    <span style="font-weight: bold">
+                        Организации-учредители:
+                    </span>
+                    <p-multiSelect [options]="organizations" [(ngModel)]="selectOrganizations"
+                                   id="EventTypeSelection"
+                                   defaultLabel="{{setEventTypeLabel()}}"
+                                   [style]="{'width':'500px'}"
+                                   (onChange)="setEventTypeLabel()"
+                                   [panelStyle]="{minWidth:'12em'}"
+                                   [ngModelOptions]="{standalone: true}">
+                        <ng-template let-item pTemplate="item">
+                            <span>{{item.label}}</span>
+                        </ng-template>
+                    </p-multiSelect>
+                </p>
+                <p>
+                    <span style="font-weight: bold">
+                        Изм. НПА: {{modelFormDocs.editing == true ? "Да" : "Нет"}}
+                    </span>
+                    <p-checkbox name="editing" [(ngModel)]="modelFormDocs.editing" binary="true"></p-checkbox>
+                </p>
+                <p>
+                </p>
+                <p>
+                    <span style="font-weight: bold">
+                        Название НПА:
+                    </span>
+                </p>
+                <p>
+                    <textarea name="name" [(ngModel)]="modelFormDocs.name" rows="4" cols="60" pInputTextarea autoResize="autoResize"></textarea>
+                </p>
+                <div class="ui-dialog-buttonpane ui-helper-clearfix">
+                    <button type="button" pButton icon="fa-close" (click)="displayPaste=false" label="Отмена" class="ui-button-danger"></button>
+                    <button type="submit" pButton icon="fa-file" label="Сохранить" class="ui-button-success"></button>
+                </div>
+            </form>
+    </p-dialog>
+    <!-- Диалоговое окно добавления/редактирования редакции -->
+    <p-dialog [(visible)]="displayAddRevis" width="520" height="500" [modal]="true" [style]="{'border':'2px solid #0242FF'}">
+        <p-header>
+            <span>{{modelFormRevision.idRev == null ? "Добавить" : "Редактировать"}}</span>
+        </p-header>
+        <form #RevForm="ngForm" class="ng-pristine ng-untouched ng-valid" novalidate="" (ngSubmit)="revSubmit()">
+            <input type="hidden" name="id" [(ngModel)]="modelFormRevision.idRev"/>
+            <p>
+                Первоначальная:
+                <span style="font-size: 18px">
+                    <p-checkbox name="original" [(ngModel)]="modelFormRevision.original" binary="false"></p-checkbox>
+                </span>
+            </p>
+            <p>
+                Номер изменяющего НПА:
+                <p-dropdown [options]="idNPARev" name="id_NPA_Revision" [(ngModel)]="modelFormRevision.id_NPA_Revision" [style]="{'width':'150px'}" inputId="modelFormRevision.id_NPA_Revision" filter="filter" [disabled]="modelFormRevision.original"></p-dropdown>
+            </p>
+            <p class="calendarOverFlow">
+                Дата редакции:
+                <p-calendar name="dtRev" [(ngModel)]="modelFormRevision.dtRev" dateFormat="dd.mm.yy" [monthNavigator]="true" [yearNavigator]="true" yearRange="1950:2050" [locale]="rus" [showIcon]="true" styleClass="calendarOverFlow" [disabled]="modelFormRevision.original"></p-calendar>
+            </p>
+            <p>
+                Срок действия редакции:<br />
+                <span>с <p-calendar name="dtBegin" [(ngModel)]="modelFormRevision.dtBegin" dateFormat="dd.mm.yy" [monthNavigator]="true" [yearNavigator]="true" yearRange="1950:2050" [locale]="rus" [showIcon]="true" styleClass="calendarOverFlow"></p-calendar></span>
+                <span [style.margin-left]="'30px'" [style.margin-right]="'60px'">по <p-calendar name="dtEnd" [(ngModel)]="modelFormRevision.dtEnd" dateFormat="dd.mm.yy" [monthNavigator]="true" [yearNavigator]="true" yearRange="1950:2050" [locale]="rus" [showIcon]="true" styleClass="calendarOverFlow"></p-calendar></span>
+            </p>
+            <textarea pInputTextarea style="opacity:0;" rows="8" autoResize="true" disabled="true"></textarea>
+            <div class="ui-dialog-buttonpane ui-helper-clearfix">
+                <button type="button" pButton icon="fa-close" (click)="displayAddRevis=false" label="Отмена" class="ui-button-danger"></button>
+                <button type="submit" pButton icon="fa-pencil-square-o" label="Сохранить" class="ui-button-success"></button>
+            </div>
+        </form>
+    </p-dialog>
+    <!--Диалоговое окно при удалении редакции-->
+    <p-dialog [(visible)]="displayDelResponse" height="155" [style]="{'border':'2px solid #0242FF'}">
+        <p-header>Удаление</p-header>
+        Вы действительно хотите удалить редакцию?
+        <div class="ui-dialog-buttonpane ui-helper-clearfix">
+            <button type="button" pButton icon="fa-close" (click)="displayDelResponse=false" label="Нет" class="ui-button-danger"></button>
+            <button type="button" pButton icon="fa-file" (click)="btnDelAnswerYes()" label="Да" class="ui-button-success"></button>
+        </div>
+    </p-dialog>
+    <!--Диалоговое окно при удалении документа-->
+    <p-dialog [(visible)]="displayDelDecResponse" height="155" [style]="{'border':'2px solid #0242FF'}">
+        <p-header>Удаление</p-header>
+        <div *ngIf="selectedDocList != null; else elseBlock">
+            Вы действительно хотите удалить НПА № {{selectedDocList.num}}?
+        </div>
+        <ng-template #elseBlock>Вы действительно хотите удалить НПА?</ng-template>
+        <div class="ui-dialog-buttonpane ui-helper-clearfix">
+            <button type="button" pButton icon="fa-close" (click)="hideDelDocResponse()" label="Нет" class="ui-button-danger"></button>
+            <button type="button" pButton icon="fa-file" (click)="btnDelDocAnswerYes()" label="Да" class="ui-button-success"></button>
+        </div>
+    </p-dialog>
+</div>
+<span [ngSwitch]="switchboard">
+    <ng-template ngSwitchCase="mergTree">
+        <div [style.display]="(flagMerge == true) ? 'block' : 'none'">
+            <p-toolbar class="headerMergeTrees">
+                <div class="ui-g">
+                    <div class="ui-g-4">
+                        <button type="button" pButton (click)="btnBack(); blockedTable=false;" icon="fas fa-angle-left" label="Назад"></button>
+                    </div>
+                    <div class="ui-g-4" style="font-size: 1.2em;font-weight:bold;text-align: center">
+                        НПА № {{doc.num}} от {{doc.dt | date: 'dd.MM.yyyy'}}
+                    </div>
+                    <div class="ui-g-4"></div>
+                </div>
+                <div class="ui-g">
+                    <div class="ui-g-6" style="font-size: 1.2em;font-weight:bold;text-align: center">
+                        Редакция от {{leftTable | date: 'dd.MM.yyyy'}}
+                    </div>
+                    <div class="ui-g-6" style="font-size: 1.2em;font-weight:bold;text-align: center">
+                        Редакция от {{rightTable | date: 'dd.MM.yyyy'}}
+                    </div>
+                </div>
+            </p-toolbar>
+            <br>
+            <br>
+            <textarea pInputTextarea style="opacity: 0;" rows="3" autoResize="true" disabled="true"></textarea>
+            <mt-app [mergedTree]="mergedTree"></mt-app>
+        </div>
+    </ng-template>
+    <ng-template ngSwitchCase="compRev">
+        <div [style.display]="(flagCompareRev == true) ? 'block' : 'none'">
+            <p-toolbar class="headerMergeTrees">
+                <div class="ui-g">
+                    <div class="ui-g-4">
+                        <button type="button" pButton (click)="btnCompareRevBack()" icon="fas fa-angle-left" label="Назад к таблице НПА"></button>
+                    </div>
+                    <div class="ui-g-4" style="font-size: 1.2em;font-weight:bold;text-align: center">
+                        НПА № {{doc.num}} от {{doc.dt | date: 'dd.MM.yyyy'}}
+                    </div>
+                    <div class="ui-g-4"></div>
+                </div>
+                <div class="ui-g">
+                    <div class="ui-g-4" style="font-size: 1.2em;font-weight:bold">
+                        Редакция от {{dtRev1 | date: 'dd.MM.yyyy'}}
+                    </div>
+                    <div class="ui-g-2"></div>
+                    <div class="ui-g-6" style="font-size: 1.2em;font-weight:bold">
+                        Редакция от {{dtRev2 | date: 'dd.MM.yyyy'}}
+                    </div>
+                </div>
+            </p-toolbar>
+            <br>
+            <br>
+            <textarea pInputTextarea style="opacity: 0;" rows="3" autoResize="true" disabled="true"></textarea>
+            <comrev-app [strHtml]="strHtml"></comrev-app>
+        </div>
+    </ng-template>
+    <ng-template ngSwitchCase="imageView">
+        <div [style.display]="(flagImageView == true) ? 'block' : 'none'">
+            <p-toolbar class="headerMergeTrees">
+                <div class="ui-g">
+                    <div class="ui-g-2">
+                        <button type="button" pButton (click)="btnImageViewBack()" icon="fas fa-angle-left" label="Назад к таблице НПА"></button>
+                    </div>
+                    <div class="ui-g-6" style="font-size: 1.2em;font-weight:bold;text-align: center">
+                        НПА № {{doc.num}} от {{doc.dt | date:'dd.MM.yyyy'}} , ред. от {{revis.dtRev | date:'dd.MM.yyyy'}}
+                    </div>
+                    <div class="ui-g-4">
+                        <span style="font-size: 14px;margin-left: 25px">
+                            <button type="button" pButton (click)="btnDownloadRev()" icon="fa-download" pTooltip="Скачать" tooltipPosition="top"></button>
+                        </span>
+                    </div>
+                </div>
+            </p-toolbar>
+            <br>
+            <br>
+            <textarea pInputTextarea style="opacity: 0;" rows="1" autoResize="true" disabled="true"></textarea>
+            <imgview-app [htmlText]="htmlText"></imgview-app>
+        </div>
+    </ng-template>
+    <ng-template ngSwitchCase="structRev">
+        <div [style.display]="(flagStructRev == true) ? 'block' : 'none'">
+                <p-toolbar class="headerMergeTrees">
+                <div class="ui-g">
+                    <div class="ui-g-4">
+                        <button type="button" pButton (click)="btnStructRevBack()" icon="fas fa-angle-left" label="Назад к таблице НПА"></button>
+                    </div>
+                    <div class="ui-g-4" style="font-size: 1.2em;font-weight:bold;text-align: center">
+                        <span [style.display]="modelFormRevision.idRev == null ? 'inline' : 'none'">№{{selectedDocList == null ? "" : selectedDocList.num}} от {{selectedDocList == null ? "" : selectedDocList.dt | date: 'dd.MM.yyyy'}} (без редакции)</span>
+                        <span [style.display]="modelFormRevision.idRev == null ? 'none' : 'inline'">№{{selectedDocList == null ? "" : selectedDocList.num}} от {{selectedDocList == null ? "" : selectedDocList.dt | date: 'dd.MM.yyyy'}} (в ред. от {{modelFormRevision == null ? "" : modelFormRevision.dtRev | date: 'dd.MM.yyyy'}})</span>
+                    </div>
+                    <div class="ui-g-4"></div>
+                </div>
+            </p-toolbar>
+            <br>
+            <br>
+            <textarea pInputTextarea style="opacity: 0;" rows="1" autoResize="true" disabled="true"></textarea>
+            <br>
+            <button type="button" (click)="btnFullViewing()" pButton icon="fa-search" label="Просмотр и редактирование" [disabled]="disFullViewing"></button>
+            <br>
+            <br>
+            <div>
+                <p-treeTable [value]="modelTree" [style]="{'width':'100%'}" selectionMode="single"
+                             [(selection)]="selectedTree" (onNodeSelect)="onNodeTreeSelect($event)">
+                    <p-column field="label" header="Структурная единица" [style]="{'width':'43%'}"></p-column>
+                    <p-column field="type" header="Тип структурной единицы" [style]="{'width':'20%','text-align':'center'}"></p-column>
+                    <p-column field="dtBegin" header="Дата ввода в действие" [style]="{'width':'18%','text-align':'center'}">
+                        <ng-template let-node="rowData" pTemplate="body">
+                            <span>{{node.data.dtBegin | date: 'dd.MM.yyyy'}}</span>
+                        </ng-template>
+                    </p-column>
+                    <p-column field="dtEnd" header="Дата окончания действия" [style]="{'width':'18%','text-align':'center'}">
+                        <ng-template let-node="rowData" pTemplate="body">
+                            <span>{{node.data.dtEnd | date: 'dd.MM.yyyy'}}</span>
+                        </ng-template>
+                    </p-column>
+                </p-treeTable>
+            </div>
+        </div>
+    </ng-template>
+    <ng-template ngSwitchCase="dloadText">
+        <div [style.display]="(flagDloadText == true) ? 'block' : 'none'">
+            <p-toolbar class="headerMergeTrees">
+                <div class="ui-g">
+                    <div class="ui-g-4">
+                        <button type="button" pButton (click)="btnDloadTextBack()" icon="fas fa-angle-left" label="Назад к таблице НПА"></button>
+                        <button type="button" pButton icon="fa-file" (click)="btnSaveLoadFile()" label="Сохранить" class="ui-button-success"></button>
+                    </div>
+                    <div class="ui-g-4" style="font-size: 1.2em;font-weight:bold;text-align: center">
+                        <span>Файл: {{fileName}}</span>
+                    </div>
+                    <div class="ui-g-4"></div>
+                </div>
+            </p-toolbar>
+            <br>
+            <br>
+            <textarea pInputTextarea style="opacity: 0;" rows="1" autoResize="true" disabled="true"></textarea>
+            <dload-app [modelTreeFile]="modelTreeFile"></dload-app>
+        </div>
+    </ng-template>
+    <ng-template ngSwitchCase="fullver">
+        <div class="ui-g">
+        <div class="ui-g-12">
+            <button type="button" pButton (click)="btnBackFullVer()" icon="fas fa-angle-left" label="Назад к структуре"></button>
+        </div>
+    </div>
+    <form #StrForm="ngForm" class="ng-pristine ng-untouched ng-valid" (ngSubmit)="strSubmit()">
+        <p-dataTable [value]="tabRevfull" [editable]="true" [style]="{'margin-right':'175px'}">
+            <p-footer>
+                <div class="ui-g">
+                    <div class="ui-g-10"></div>
+                    <div class="ui-g-2">
+                        <button type="submit" pButton icon="fa-file" label="Сохранить" class="ui-button-success"></button>
+                    </div>
+                </div>
+            </p-footer>
+            <p-column field="label" header="Структурная единица" [style]="{'width':'43%'}">
+                <ng-template let-col let-row="rowData" pTemplate="body">
+                    <div style="overflow:scroll; height:200px;">{{row[col.field]}}</div>
+                </ng-template>
+            </p-column>
+            <p-column field="type" header="Тип структурной единицы" [style]="{'width':'20%','vertical-align':'top','text-align':'center'}">
+                <ng-template let-col let-row="rowData" pTemplate="body">
+                    <p-dropdown #eltype [options]="elemTypes" name="types" [(ngModel)]="selectedElemType.value" [disabled]="elemDisabled" [style]="{'width':'100%','text-align':'center'}" inputId="selectedElemType.value" editable="true" (onChange)="onChangeElemType()">
+                    </p-dropdown>
+                    <p>
+                        <button type="button" pButton (click)="btnAddElem()" icon="fa-file-o" label="Добавить" [disabled]="disAddElemType" class="ui-button-success"></button>
+                    </p>
+                </ng-template>
+            </p-column>
+            <p-column field="dtBegin" header="Дата ввода в действие" [editable]="true" [style]="{'width':'18%','overflow':'visible','vertical-align':'top','text-align':'center'}">
+                <ng-template let-col let-row="rowData" pTemplate="body">
+                    <span>{{row[col.field] | date: 'dd.MM.yyyy'}}</span>
+                </ng-template>
+                <ng-template let-col let-row="rowData" pTemplate="editor">
+                    <p-calendar name="dtBegin" [(ngModel)]="row[col.field]" dateFormat="dd.mm.yy" [monthNavigator]="true" [yearNavigator]="true" yearRange="1950:2050" [locale]="rus" styleClass="calendarOverFlow"></p-calendar>
+                </ng-template>
+            </p-column>
+            <p-column field="dtEnd" header="Дата окончания действия" [editable]="true" [style]="{'width':'18%','overflow':'visible','vertical-align':'top','text-align':'center'}">
+                <ng-template let-col let-row="rowData" pTemplate="body">
+                    <span>{{row[col.field] | date: 'dd.MM.yyyy'}}</span>
+                </ng-template>
+                <ng-template let-col let-row="rowData" pTemplate="editor">
+                    <p-calendar name="dtEnd" [(ngModel)]="row[col.field]" dateFormat="dd.mm.yy" [monthNavigator]="true" [yearNavigator]="true" yearRange="1950:2050" [locale]="rus" styleClass="calendarOverFlow"></p-calendar>
+                </ng-template>
+            </p-column>
+        </p-dataTable>
+    </form>
+    </ng-template>
+</span>

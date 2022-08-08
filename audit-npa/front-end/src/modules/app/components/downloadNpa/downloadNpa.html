@@ -1,0 +1,70 @@
+<div *ngIf="isProblem; else elseProblem">
+    <div class="ui-g">
+        <div class="ui-g-4"></div>
+        <div class="ui-g-4">
+           <span style="text-align: center; font-size: 1.2em; font-weight: bold">
+               Данный режим находится в стадии разработки!
+           </span>
+        </div>
+        <div class="ui-g-4"></div>
+    </div>
+
+</div>
+<ng-template #elseProblem>
+    <div class="ui-g">
+        <div class="ui-g-12">
+            <div *ngIf="isProgressBar">
+                <div></div>
+                <p-progressBar mode="indeterminate" [style]="{'height': '6px','weidth':'100%'}"></p-progressBar>
+            </div>
+        </div>
+    </div>
+    <div class="ui-g">
+        <div class="ui-g-5">
+            <p-toolbar>
+                <div class="ui-toolbar-group-left">
+                    <input #gb type="text" pInputText size="45" placeholder="Фильтр по №, наименованию и типу НПА">
+                </div>
+                <div class="ui-toolbar-group-right">
+                    <p-fileUpload #fileload url=""
+                                  chooseLabel="Загрузить архив"
+                                  name="uploadedFileRef"
+                                  mode="basic" auto="true"
+                                  (onBeforeSend)="onBeforeSendUploadFile($event)"
+                                  (onUpload)="onUploadFile($event)"
+                                  (onSelect)="onSelectUploadFile($event)"
+                                  accept=".zip">
+                    </p-fileUpload>
+                </div>
+            </p-toolbar>
+        </div>
+        <div class="ui-g-2">
+            <p-toolbar>
+                <div class="ui-toolbar-group-left">
+                    <span style="font-weight: bold; text-align: center;">Список загруженных документов НПА</span>
+                </div>
+            </p-toolbar>
+        </div>
+        <div class="ui-g-5"></div>
+    </div>
+    <p-dataTable [value]="stateDownloadNpa"
+                 [scrollable]="true"
+                 scrollHeight="520px"
+                 dataKey="num"
+                 [globalFilter]="gb"
+                 emptyMessage="">
+        <p-column field="type.name" header="Тип док-та" [style]="{'width':'10%','text-align':'center'}"></p-column>
+        <p-column field="number" header="Номер" [style]="{'width':'10%','text-align':'center'}"></p-column>
+        <p-column field="date" header="Дата" [excludeGlobalFilter]="true" [style]="{'width':'10%','text-align':'center'}">
+            <ng-template pTemplate="body" let-col let-row="rowData">
+                {{row[col.field] | date: 'dd.MM.yyyy'}}
+            </ng-template>
+        </p-column>
+        <p-column field="name" header="Наименование"></p-column>
+        <p-column field="status" header="Статус" [style]="{'width':'10%'}"></p-column>
+    </p-dataTable>
+
+    <div>
+        <p-growl [(value)]="msgs" [sticky]="true"></p-growl>
+    </div>
+</ng-template>

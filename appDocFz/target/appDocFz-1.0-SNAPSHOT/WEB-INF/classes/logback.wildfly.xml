@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!--propagation eliminates the performance impact of disabled log statements-->
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!--See http://logback.qos.ch/manual/appenders.html#RollingFileAppender-->
+        <!--and http://logback.qos.ch/manual/appenders.html#TimeBasedRollingPolicy-->
+        <!--for further documentation-->
+        <File>ENV_LOG_DIR/bisDocFz.log</File>
+        <Append>false</Append>
+        <Encoding>UTF-8</Encoding>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-4relative [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>ENV_LOG_DIR/bisDocFz.%d{yyyy-MM-dd}.log</fileNamePattern>
+            <maxHistory>7</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <logger name="ru.nvacenter.platform.core.listeners.ServletContextLoaderListener" level="DEBUG"/>
+	<logger name="ru.nvacenter.platform.core.utils.JspExtractor" level="DEBUG"/>
+    <logger name="ru.nvacenter.platform.core.utils.VersionExtractor" level="DEBUG"/>
+	<logger name="ru.nvacenter.platform.core.utils.MemoryLeaksHelper" level="TRACE"/>
+
+    <logger name="ru.nvacenter.bis.core.server.spring.security" level="INFO"/>
+    <logger name="ru.nvacenter.bis.core.server.spring.security.JpaRememberMeAuthenticationFilter" level="ERROR"/>
+
+    <logger name="ru.nvacenter.bis.core.server.spring.security.GWTLogoutSuccessHandler" level="TRACE"/>
+    <logger name="ru.nvacenter.bis.core.server.spring.security.GWTAuthenticationFailureHandler" level="TRACE"/>
+    <logger name="ru.nvacenter.bis.core.server.spring.security.GWTAuthenticationSuccessHandler" level="TRACE"/>
+
+    <logger name="ru.nvacenter.bis.audit.server.controllers.AuditController" level="DEBUG"/>
+    <logger name="ru.nvacenter.bis.audit.server.services.dao" level="DEBUG"/>
+
+    <logger name="org.springframework.web.servlet" level="INFO"/>
+
+    <logger name="org.springframework.security.web.authentication" level="INFO"/>
+    <logger name="org.springframework.security.access" level="INFO" />
+    <logger name="org.springframework.security" level="INFO"/>
+
+    <logger name="org.springframework.transaction.annotation" level="INFO" />
+    <logger name="org.springframework.transaction" level="INFO"/>
+
+    <logger name="org.springframework.orm.jpa" level="INFO"/>
+    <logger name="com.sun.mail.smtp" level="TRACE"/>
+
+    <root level="ERROR">
+        <appender-ref ref="FILE"/>
+    </root>
+</configuration>

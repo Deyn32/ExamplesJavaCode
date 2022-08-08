@@ -1,0 +1,54 @@
+<span [ngSwitch]="switchboard">
+    <ng-template ngSwitchCase="main">
+        <p-toolbar class="headerMergeTrees">
+            <div class="ui-g">
+                <div class="ui-g-4">
+                    <button type="button" pButton (click)="btnBack()" icon="fas fa-angle-left" label="Назад"></button>
+                    <button type="button" (click)="btnFullViewing()" pButton icon="fa-search" label="Просмотр и редактирование" [disabled]="disFullViewing"></button>
+                </div>
+                <div class="ui-g-4" style="font-size: 1.2em;font-weight:bold;text-align: center">
+                    <span [style.display]="modelFormRevision.idRev == null ? 'inline' : 'none'">№{{selectedDocList == null ? "" : selectedDocList.num}} от {{selectedDocList == null ? "" : selectedDocList.dt | date: 'dd.MM.yyyy'}} (без редакции)</span>
+                    <span [style.display]="modelFormRevision.idRev == null ? 'none' : 'inline'">№{{selectedDocList == null ? "" : selectedDocList.num}} от {{selectedDocList == null ? "" : selectedDocList.dt | date: 'dd.MM.yyyy'}} (в ред. от {{modelFormRevision == null ? "" : modelFormRevision.dtRev | date: 'dd.MM.yyyy'}})</span>
+                </div>
+                <div class="ui-g-4"></div>
+            </div>
+        </p-toolbar>
+        <br>
+        <br>
+        <textarea pInputTextarea style="opacity: 0;" rows="1" autoResize="true" disabled="true"></textarea>
+        <div>
+            <p-treeTable [value]="modelTree" [style]="{'width':'100%'}" selectionMode="single" [(selection)]="selectedTree" (onNodeSelect)="onNodeTreeSelect($event)">
+                <p-column field="label" header="Структурная единица" [style]="{'width':'43%'}"></p-column>
+                <p-column field="type" header="Тип структурной единицы" [style]="{'width':'20%','text-align':'center'}"></p-column>
+                <p-column field="dtBegin" header="Дата ввода в действие" [style]="{'width':'18%','text-align':'center'}">
+                    <ng-template let-node="rowData" pTemplate="body">
+                        <span>{{node.data.dtBegin | date: 'dd.MM.yyyy'}}</span>
+                    </ng-template>
+                </p-column>
+                <p-column field="dtEnd" header="Дата окончания действия" [style]="{'width':'18%','text-align':'center'}">
+                    <ng-template let-node="rowData" pTemplate="body">
+                        <span>{{node.data.dtEnd | date: 'dd.MM.yyyy'}}</span>
+                    </ng-template>
+                </p-column>
+            </p-treeTable>
+        </div>
+    </ng-template>
+    <ng-template ngSwitchCase="fullver">
+        <fullelem-app [selectedDocList]="selectedDocList" [modelFormRevision]="modelFormRevision" [selectedTree]="selectedTree" [get]="get" [elemTypes]="elemTypes"></fullelem-app>
+    </ng-template>
+    <ng-template ngSwitchCase="base">
+        <sg-comp-app></sg-comp-app>
+    </ng-template>
+</span>
+
+<!-- Диалоговое окно полосы загрузки -->
+<div>
+    <p-dialog [(visible)]="displayLoading" [style]="{'border':'2px solid #0242FF'}">
+        <p-header>
+            Пожалуйста, подождите...
+        </p-header>
+        <div class="imageContainer glass">
+            <img src="../images/loading.gif" width="350" height="40" border="0" />
+        </div>
+    </p-dialog>
+</div>

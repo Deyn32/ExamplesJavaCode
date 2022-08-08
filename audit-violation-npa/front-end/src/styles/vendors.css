@@ -1,0 +1,6 @@
+@import '~bootstrap/dist/css/bootstrap.css';
+@import '~font-awesome/css/font-awesome.css';
+@import '~primeng/resources/primeng.min.css';
+@import '~primeng/resources/themes/omega/theme.css';
+@import '~angular2-busy/build/style/busy.css';
+@import '../../../src/main/resources/META-INF/resources/modules/audit-violation-npa/css/core.css';

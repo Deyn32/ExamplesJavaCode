@@ -1,0 +1,42 @@
+<div class="ui-g">
+    <div class="ui-g-12">
+        <div *ngIf="isProgressBar">
+            <div></div>
+            <p-progressBar mode="indeterminate" [style]="{'height': '6px','weidth':'100%'}"></p-progressBar>
+        </div>
+    </div>
+</div>
+<div class="ui-g">
+    <div class="ui-g-5">
+        <input #gb type="text" pInputText size="45" placeholder="Фильтр по №, наименованию и типу НПА">
+        <button type="button" pButton (click)="btnCreateFiles()" label="Выгрузить документы" [disabled]="disCreateFile"></button>
+    </div>
+    <div class="ui-g-2">
+        <span style="font-weight: bold; text-align: center;">Документы НПА</span>
+    </div>
+    <div class="ui-g-5"></div>
+</div>
+<br>
+<div style="font-weight: bold">
+    Выбранные документы: <span>{{selectDocs}}</span>
+</div>
+<p-dataTable [value]="documents"
+             selectionMode="multiple"
+             [(selection)]="selectedDocs"
+             [scrollable]="true"
+             scrollHeight="520px"
+             [metaKeySelection]="false"
+             (onRowSelect)="onRowSelect()"
+             (onRowUnselect)="onRowUnselect()"
+             dataKey="num"
+             [globalFilter]="gb"
+             emptyMessage="">
+    <p-column field="docType.name" header="Тип док-та" [style]="{'width':'10%','text-align':'center'}"></p-column>
+    <p-column field="num" header="Номер" [style]="{'width':'10%','text-align':'center'}"></p-column>
+    <p-column field="dt" header="Дата" [excludeGlobalFilter]="true" [style]="{'width':'10%','text-align':'center'}">
+        <ng-template pTemplate="body" let-col let-row="rowData">
+            {{row[col.field] | date: 'dd.MM.yyyy'}}
+        </ng-template>
+    </p-column>
+    <p-column field="name" header="Наименование"></p-column>
+</p-dataTable>

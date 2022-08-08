@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jee="http://www.springframework.org/schema/jee"
+    xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/jee http://www.springframework.org/schema/jee/spring-jee-3.2.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+
+	<!--<beans profile="production">-->
+
+		<!--<jee:jndi-lookup id="dataSource" jndi-name="java:/comp/env/jdbc/efois/089/FOIS_BO_GRBS"/>-->
+		<!--<jee:jndi-lookup id="dataSourceNSI" jndi-name="java:/comp/env/jdbc/efois/089/FOIS_NSI"/>-->
+		<!--<jee:jndi-lookup id="dataSourceFOIS2013" jndi-name="java:/comp/env/jdbc/efois/089/FOIS_GRBS_2013"/>-->
+		<!--<jee:jndi-lookup id="dataSourceFOIS2014" jndi-name="java:/comp/env/jdbc/efois/089/FOIS_GRBS_2014"/>-->
+		<!--<jee:jndi-lookup id="dataSourceFOIS2015" jndi-name="java:/comp/env/jdbc/efois/089/FOIS_GRBS_2015"/>-->
+		<!--<jee:jndi-lookup id="dataSourceFOIS2016" jndi-name="java:/comp/env/jdbc/efois/089/FOIS_GRBS_2016"/>-->
+		<!--<jee:jndi-lookup id="dataSourceFOIS2017" jndi-name="java:/comp/env/jdbc/efois/089/FOIS_GRBS_2017"/>-->
+		<!--<jee:jndi-lookup id="dataSourceDOCFZ" jndi-name="java:/comp/env/jdbc/efois/149/DOCFZ" />-->
+		<!--&lt;!&ndash;TODO: rename remaining to match jndi naming convention&ndash;&gt;-->
+	<!--</beans>-->
+
+	<beans profile="production">
+	   <bean id="totpAuthenticator" class="ru.nvacenter.bis.core.server.spring.security.TOTPAuthenticator">
+	       <constructor-arg name="timeStep" value="30" />
+	       <constructor-arg name="variance" value="20" /> <!-- 30s * 20 = 10 minutes на ожидание доставки почты -->
+	   </bean>
+
+		<!-- ВБ дала резалюцию на отключение 14.12.2015 -->
+		<!-- Трофимыч, велел пока не выключать 15.12.2015 из-за скандала с mail.ru у Новгорода -->
+		<!-- EВ, дала резолюцию на отключение 16.12.2015 -->
+	    <bean id="useTwoFactorAuth" class="java.lang.Boolean">
+	        <constructor-arg value="false"/>
+	    </bean>
+
+		<jee:jndi-lookup id="dataSource" jndi-name="java:/comp/env/jdbc/efois/149/FOIS_BO_GRBS"
+			lookup-on-startup="true" expected-type="javax.sql.DataSource" />
+		<jee:jndi-lookup id="dataSourceNSI" jndi-name="java:/comp/env/jdbc/efois/149/FOIS_NSI"
+		 	lookup-on-startup="true" expected-type="javax.sql.DataSource" />
+		<jee:jndi-lookup id="dataSourceFOIS2013" jndi-name="java:/comp/env/jdbc/efois/149/FOIS_GRBS_2013"
+			lookup-on-startup="true" expected-type="javax.sql.DataSource" />
+		<jee:jndi-lookup id="dataSourceFOIS2014" jndi-name="java:/comp/env/jdbc/efois/149/FOIS_GRBS_2014"
+			lookup-on-startup="true" expected-type="javax.sql.DataSource" />
+		<jee:jndi-lookup id="dataSourceFOIS2015" jndi-name="java:/comp/env/jdbc/efois/149/FOIS_GRBS_2015"
+			lookup-on-startup="true" expected-type="javax.sql.DataSource" />
+		<jee:jndi-lookup id="dataSourceFOIS2016" jndi-name="java:/comp/env/jdbc/efois/149/FOIS_GRBS_2016"
+			lookup-on-startup="true" expected-type="javax.sql.DataSource" />
+		<jee:jndi-lookup id="dataSourceFOIS2017" jndi-name="java:/comp/env/jdbc/efois/149/FOIS_GRBS_2017"
+			lookup-on-startup="true" expected-type="javax.sql.DataSource" />
+		<jee:jndi-lookup id="dataSourceFOIS2018" jndi-name="java:/comp/env/jdbc/efois/149/FOIS_GRBS_2018"
+			lookup-on-startup="true" expected-type="javax.sql.DataSource" />
+		<!--TODO: добавить строку для 2019 года -->
+
+		<jee:jndi-lookup id="entityManagerFZFactory" jndi-name="java:comp/env/persistence/nsiPersistenceUnit-emf"
+            	lookup-on-startup="true" expected-type="javax.persistence.EntityManagerFactory" />
+
+		<!--
+            Инъектирует экземпляр entityManager в места помеченные анотацией PersistenceContext
+            автоматически регистриуетяся Spring, но есть возможность переопределить если знать правильный id
+            id взято из org.springframework.context.annotation.AnnotationConfigUtils.registerAnnotationConfigProcessors()
+        -->
+        <bean id="org.springframework.context.annotation.internalPersistenceAnnotationProcessor"
+              class="org.springframework.orm.jpa.support.PersistenceAnnotationBeanPostProcessor">
+            <property name="persistenceUnits">
+                <map>
+                    <entry key="appPersistenceUnit" value="persistence/appPersistenceUnit-emf"/>
+                    <entry key="nsiPersistenceUnit" value="persistence/nsiPersistenceUnit-emf"/>
+                    <!--entry key="fzPersistenceUnit" value="persistence/fzPersistenceUnit-emf"/-->
+					<!--entry key="docfzPersistenceUnit" value="persistence/docfzPersistenceUnit-emf"/-->
+                </map>
+            </property>
+        </bean>
+    </beans>
+
+</beans>

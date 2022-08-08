@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd"
+                 version="2.1">
+
+    <package>ru.nvacenter.bis.audit.npa.domain</package>
+    <!--<entity class="domain"></entity>-->
+
+    <entity class="ru.nvacenter.bis.audit.npa.domain.NVA_SPR_AUD_NPA"></entity>
+    <entity class="ru.nvacenter.bis.audit.npa.domain.NVA_SPR_AUD_NPA_STRUCTURE"></entity>
+    <entity class="ru.nvacenter.bis.audit.npa.domain.NVA_SPR_AUD_Document_Type"></entity>
+    <entity class="ru.nvacenter.bis.audit.npa.domain.NVA_SPR_AUD_Element_Type"></entity>
+    <entity class="ru.nvacenter.bis.audit.npa.domain.NVA_SPR_AUD_NPA_Revision"></entity>
+    <entity class="ru.nvacenter.bis.audit.npa.domain.NVA_SPR_AUD_Organization"></entity>
+
+    <entity class="ru.nvacenter.bis.audit.npa.domain.NVA_SPR_AUD_ElementType" access="FIELD">
+        <table name="NVA_SPR_AUD_Element_Type"/>
+        <attributes>
+            <id name="id">
+                <column name="ID" />
+            </id>
+            <basic name="name">
+                <column name="Name"/>
+            </basic>
+            <basic name="deleted">
+                <column name="Is_Deleted"/>
+            </basic>
+            <basic name="started">
+                <column name="DATE_BEGIN"/>
+            </basic>
+            <basic name="ended">
+                <column name="DATE_END"/>
+            </basic>
+        </attributes>
+    </entity>
+    <named-query name="audit-npa-common-mappings.getElements">
+        <query>
+            SELECT element FROM NVA_SPR_AUD_ElementType element WHERE
+            (element.deleted = 0 OR element.deleted IS NULL)
+            AND :date &gt;= element.started
+            AND (element.ended IS NULL OR :date &lt;= element.ended)
+        </query>
+    </named-query>
+</entity-mappings>

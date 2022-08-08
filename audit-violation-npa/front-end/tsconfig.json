@@ -1,0 +1,21 @@
+{
+    "compilerOptions": {
+        "target": "es5",
+        "module": "es6",
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "lib": ["es2015", "dom"],
+        "noImplicitAny": false,
+        "suppressImplicitAnyIndexErrors": true
+//        ,"noEmit": true
+    }
+,
+    "exclude": [
+        "node_modules",
+        "typings/index.d.ts",
+        "node_modules/typescript/lib/lid.d.ts",
+        "typings/index"
+    ]
+}

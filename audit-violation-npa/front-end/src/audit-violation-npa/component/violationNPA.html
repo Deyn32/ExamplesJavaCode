@@ -1,0 +1,114 @@
+<div class="headerMergeTrees">
+    <p-toolbar item-width="320px">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div class="ui-toolbar-group-left">
+                </div>
+                <div class="ui-toolbar-group-right">
+
+                </div>
+            </div>
+        </div>
+    </p-toolbar>
+</div>
+<br>
+<br>
+<div class="ui-g">
+    <div class="ui-g-12">
+        <div *ngIf="isProgressBar">
+            <div>{{status}}</div>
+            <p-progressBar mode="indeterminate" [style]="{'height': '6px','weidth':'100%'}"></p-progressBar>
+        </div>
+    </div>
+</div>
+    <div class="ui-g">
+        <div class="ui-g-9">
+            <button type="button" pButton (click)="btnStart()" icon="fas fa-play" label="Старт" [disabled]="disStart" class="ui-button-success"></button>
+            <button type="button" pButton (click)="btnStop()" icon="fas fa-stop" label="Стоп" [disabled]="disStop" class="ui-button-danger"></button>
+            <span>      Анализировать по документу: </span>
+            <p-dropdown [options]="npaDropDown" [(ngModel)]="selectNpa" [filter]="true" (onChange)="onChangeNpa()" [style]="{'text-align':'center','width':'200px'}">
+                <ng-template let-item pTemplate="selectedItem">
+                    <span style="text-align: center">{{item.label}}</span>
+                </ng-template>
+                <ng-template let-itm pTemplate="item">
+                    <div class="ui-helper-clearfix" style="position: relative;height: 25px;">
+                        <div style="font-size:14px;text-align: center;">{{itm.label}}</div>
+                    </div>
+                </ng-template>
+            </p-dropdown>
+            <span>      Анализировать по нарушению: </span>
+            <p-dropdown [options]="violDropDown" [(ngModel)]="selectViol" [filter]="true" (onChange)="onChangeViol()" [style]="{'text-align':'center','width':'200px'}">
+                <ng-template let-selitem pTemplate="selectedItem">
+                    <span>{{selitem.label}}</span>
+                </ng-template>
+                <ng-template let-item pTemplate="item">
+                    <span>{{item.label}}</span>
+                </ng-template>
+            </p-dropdown>
+        </div>
+        <div class="ui-g-3">
+            <a href="./downloadManual" title="Описание сообщений и ошибок" download style="margin-left: 50px">Описание сообщений и ошибок</a>
+        </div>
+    </div>
+    <div style="text-align: center;font-weight: bold">Протокол результата формирования ссылок нарушений</div>
+    <span>{{errorStatus}}</span>
+    <div style="text-align:left">Всего записей в протоколе: {{lengthViol}} Отображено: {{lengthFind}}</div>
+    <div class="flex-auto layout-column" id="grid-content-container">
+    <p-dataTable [value]="mainTable"
+                 emptyMessage=""
+                 [scrollable]="true"
+                 scrollHeight="305%"
+                 [metaKeySelection]="false"
+                 selectionMode="single"
+                 (onFilter)="onFilterViol($event)"
+                 [tableStyle]="{'table-layout':'auto'}"
+                 [(selection)]="selectedMainTable">
+        <p-headerColumnGroup>
+            <p-row>
+                <p-column header="Формулировка нарушения" rowspan="2" colspan="1"></p-column>
+                <p-column header="Ссылка на положение НПА" rowspan="2" colspan="1" [style]="{'width':'25%'}"></p-column>
+                <p-column header="Редакция положения" rowspan="1" colspan="2" [style]="{'width':'14%'}" ></p-column>
+                <p-column header="Признак соответствия" rowspan="2" colspan="1" [style]="{'width':'10%'}"></p-column>
+            </p-row>
+            <p-row>
+                <p-column header="Дата начала" rowspan="1" colspan="1" [style]="{'width':'7%'}"></p-column>
+                <p-column header="Дата окончания" rowspan="1" colspan="1" [style]="{'width':'7%'}"></p-column>
+            </p-row>
+        </p-headerColumnGroup>
+        <p-column field="violText" [style]="{'text-align':'center'}"></p-column>
+        <p-column field="text" [style]="{'width':'25%','text-align':'center'}">
+            <ng-template let-col let-row="rowData" pTemplate="body">
+                <div>
+                    {{row[col.field]}} документа № {{row.npa.num}} от {{row.npa.date | date: 'dd.MM.yyyy'}}
+                </div>
+            </ng-template>
+        </p-column>
+        <p-column field="date_BEGIN" [style]="{'width':'7%','text-align':'center'}">
+            <ng-template let-col let-row="rowData" pTemplate="body">
+                <span>{{row[col.field] | date: 'dd.MM.yyyy'}}</span>
+            </ng-template>
+        </p-column>
+        <p-column field="date_END" [style]="{'width':'7%','text-align':'center'}">
+            <ng-template let-col let-row="rowData" pTemplate="body">
+                <span>{{row[col.field] | date: 'dd.MM.yyyy'}}</span>
+            </ng-template>
+        </p-column>
+        <p-column field="result" [style]="{'width':'10%','text-align':'center'}" [filter]="true" filterPlaceholder="Поиск">
+            <ng-template pTemplate="body" let-col let-row="rowData">
+                <span *ngIf="row[col.field] != 'В ссылке нарушения неверно указана пустая редакция'; else elseBlockLink">
+                    {{row[col.field]}}
+                </span>
+                <ng-template #elseBlockLink>
+                    {{row[col.field]}}
+                    <div>
+                        <button type="button" pButton (click)="btnFixLink(row)" label="Исправить"></button>
+                    </div>
+                </ng-template>
+            </ng-template>
+        </p-column>
+    </p-dataTable>
+</div>
+    <!-- Всплывающее окно информации -->
+<div>
+    <p-growl [(value)]="msgs"></p-growl>
+</div>

@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="true" scan="true" scanPeriod="10 seconds">
+
+    <!-- in the absence of the class attribute, assume
+       ch.qos.logback.core.hook.DelayingShutdownHook -->
+    <shutdownHook/>
+
+    <!--propagation eliminates the performance impact of disabled log statements-->
+    <contextListener class="ch.qos.logback.classic.jul.LevelChangePropagator">
+        <resetJUL>true</resetJUL>
+    </contextListener>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- encoders are assigned the type
+             ch.qos.logback.classic.encoder.PatternLayoutEncoder by default -->
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{128} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="ru.nvacenter.platform.core.listeners.ServletContextLoaderListener" level="DEBUG"/>
+    <logger name="ru.nvacenter.platform.core.utils.JspExtractor" level="DEBUG"/>
+    <logger name="ru.nvacenter.platform.core.utils.VersionExtractor" level="DEBUG"/>
+    <logger name="ru.nvacenter.platform.core.utils.MemoryLeaksHelper" level="TRACE"/>
+
+    <logger name="ru.nvacenter.bis.core.server.listeners.HibernateEventListener" level="ERROR"/>
+    <logger name="ru.nvacenter.bis.core.server.spring.security" level="TRACE"/>
+    <logger name="ru.nvacenter.bis.core.utils.export.ReportWorker" level="TRACE"/>
+    <logger name="ru.nvacenter.bis.audit.server.controllers.AuditController" level="DEBUG"/>
+    <logger name="ru.nvacenter.bis.audit.server.services.dao" level="DEBUG"/>
+    <logger name="ru.nvacenter.bis.bs.project.services.dao" level="DEBUG"/>
+    <logger name="ru.nvacenter.bis.bs.project.controllers" level="DEBUG"/>
+    <logger name="ru.nvacenter.bis.lbo.server.services.dao" level="DEBUG"/>
+    <logger name="ru.nvacenter.bis.core.license.filters" level="DEBUG"/>
+    <logger name="ru.nvacenter.bis.bs.actual.services.dao.BsActualRowService" level="TRACE"/>
+    <logger name="ru.nvacenter.bis.core.server.listeners.SessionListener" level="DEBUG"/>
+
+    <!-- чтобы проверить как Spring MVC подбирает обработчик/контроллер под url нужо поставить TRACE -->
+    <logger name="org.springframework.web.servlet.mvc.method.annotation" level="INFO" />
+    <logger name="org.springframework.web.servlet" level="INFO"/>
+
+    <!--сообщения при сериализации/десериализации json от fasterxml.jackson-->
+    <logger name="org.springframework.http" level="INFO"/>
+
+    <logger name="org.springframework.security.web.authentication" level="INFO"/>
+    <logger name="org.springframework.security.web.authentication.rememberme" level="INFO" />
+    <logger name="org.springframework.security.access" level="INFO" />
+    <logger name="org.springframework.security" level="INFO"/>
+
+    <logger name="org.springframework.transaction.annotation" level="INFO" />
+    <logger name="org.springframework.transaction" level="INFO"/>
+
+    <logger name="org.springframework.orm.jpa" level="INFO"/>
+    <logger name="org.springframework.jdbc.datasource" level="INFO" />
+
+    <logger name="com.sun.mail.smtp" level="TRACE"/>
+
+
+    <logger name="org.hibernate.SQL" level="INFO"/>
+    <logger name="org.hibernate.type.descriptor.sql" level="INFO"/>
+    <logger name="org.hibernate.tool.hbm2ddl" level="DEBUG"/>
+    <logger name="org.hibernate.cache" level="DEBUG"/>
+
+    <logger name="org.flywaydb.core.Flyway" level="TRACE" />
+
+    <!--отладка аутентификации в CAS -->
+    <logger name="org.jasig.cas" level="DEBUG"/>
+    <logger name="org.springframework.security.cas" level="DEBUG"/>
+    <logger name="org.springframework.security.cas.authentication.CasAuthenticationProvider" level="WARN" />
+    <logger name="org.springframework.security.cas.web.CasAuthenticationFilter" level="DEBUG" />
+    <logger name="org.springframework.security" level="INFO" />
+    <!-- здесь в accessDecisionManager.decide(...) происходит проверка полномочий поьзователя на доступ к объекту  -->
+    <logger name="org.springframework.security.access.intercept.AbstractSecurityInterceptor" level="DEBUG" />
+    <!-- чтение xml конфигов spring см метод #loadBeanDefinitions-->
+    <logger name="org.springframework.beans.factory.support.AbstractBeanDefinitionReader" level="DEBUG" />
+    <!-- чтение .properties файлов <context:property-placeholder location=... -->
+    <logger name="org.springframework.context.support.PropertySourcesPlaceholderConfigurer" level="INFO" />
+    <logger name="org.springframework.core.env.PropertySourcesPropertyResolver" level="INFO" />
+
+    <root level="ERROR">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>

@@ -1,0 +1,6 @@
+
+    <p-treeTable [value]="modelTreeFile.tree.children" scrollWidth="600px" [style]="{'width':'100%','max-height':'250px','margin-top':'50px'}" (onNodeSelect)="onNodeTreeSelect($event)">
+        <p-column field="name" header="Структурная единица" [style]="{'width':'55%'}"></p-column>
+        <p-column field="type" header="Тип структурной единицы" [style]="{'width':'35%','text-align':'center'}"></p-column>
+        <p-column field="num" header="Номер" [style]="{'width':'10%','text-align':'center'}"></p-column>
+    </p-treeTable>

@@ -1,0 +1,27 @@
+<jboss-deployment-structure>
+	<deployment>
+		<exclusions>
+            <!-- не хотим чтоб WildFly строил нам EMF, 
+                из-за RoutingDataSource обслуживаемого в Spring -->
+			<module name="org.antlr"/>
+            <module name="org.hibernate"/>
+            <!-- Полностью исключает встроенные зависимости com.fasterxml.jackson -->
+            <module name="org.jboss.resteasy.resteasy-jackson2-provider"/>
+		</exclusions>
+		<dependencies>
+            <module name="org.apache.commons.io"/>
+            <module name="org.apache.commons.codec"/>
+            <module name="org.dom4j"/>
+            <module name="javax.mail.api"/>
+            <module name="org.apache.xerces"/>
+            <module name="org.jboss.modules"/>
+            <module name="org.infinispan" />
+			<module name="org.jboss.logging"/> <!--jboss-logging-3.3.0-->
+        </dependencies>
+        <exclude-subsystems>
+            <!--Отключаем автоматическую активацию логгеров встроенных в jboss:
+            https://docs.jboss.org/author/display/WFLY8/Logging+Configuration -->
+            <subsystem name="logging" />
+        </exclude-subsystems>
+	</deployment>
+</jboss-deployment-structure>

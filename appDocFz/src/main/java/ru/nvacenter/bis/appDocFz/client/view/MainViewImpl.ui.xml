@@ -1,0 +1,344 @@
+<!DOCTYPE ui:UiBinder SYSTEM "http://dl.google.com/gwt/DTD/xhtml.ent">
+<ui:UiBinder xmlns:ui="urn:ui:com.google.gwt.uibinder"
+             xmlns:g="urn:import:com.google.gwt.user.client.ui"
+             xmlns:c="urn:import:ru.nvacenter.bis.core.client.widget"
+             xmlns:l="urn:import:ru.nvacenter.bis.service.client.widget.logout">
+
+    <ui:import field='ru.nvacenter.bis.core.shared.AppAuthority.*' />
+
+    <ui:with field='resourcesCore'
+             type='ru.nvacenter.bis.core.client.resources.CommonResources' />
+    <ui:with field='resourcesApp'
+             type='ru.nvacenter.bis.appDocFz.client.resources.Resources' />
+
+    <ui:style>
+        .yearSelector {
+            margin:5px 10px 5px 5px;
+        }
+        .breadCrumb {
+            margin:5px;
+        }
+
+    </ui:style>
+
+    <g:DockLayoutPanel unit='EM' ui:field="dockLayoutPanel">
+        <g:north size='3.7'>
+            <g:HTMLPanel>
+                <div class='{resourcesCore.mainViewStyle.header}'>
+                    <table width="100%" cellspacing="0" cellpadding="0">
+                        <tr>
+                            <td>
+                                <!-- h1>План финансово-хозяйственной деятельности</h1 -->
+                                <!-- h1>Исполнение бюджета казенным учреждением</h1 -->
+                                <h1>Формирование и исполнение федерального бюджета ГРБС</h1>
+                            </td>
+                            <td>
+                                <span class="{resourcesCore.mainViewStyle.versionText}" ui:field="verisonSpan">
+                                    Версия 0.0.0 (билд 00000)
+                                </span>
+                                <span class="{resourcesCore.mainViewStyle.versionText}" >
+                                    <strong>Телефон горячий линии:</strong> +7 (495) 229-0352 <strong>Email:</strong> fois@nvacenter.ru
+                                </span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <span class="{resourcesCore.mainViewStyle.instituteText}" ui:field="userInstituteSpan" />
+                            </td>
+                            <td>
+                                <div style="float:right; width:auto;">
+                                    <div class="{resourcesCore.mainViewStyle.logedInText}">
+                                        <span>Вы вошли как:</span>
+                                        <g:Hyperlink ui:field="logedInProfileHyperlink">login</g:Hyperlink>
+                                        <g:Label ui:field="userFullName">ФИО</g:Label>
+                                        <l:LogoutLink addStyleNames="{resourcesCore.mainViewStyle.logoutAnchor}" />
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </g:HTMLPanel>
+        </g:north>
+        <g:north size='3'>
+            <!-- Основное меню -->
+            <!--addStyleNames='{resourcesCore.menuBarCss.gwtMenuBar}'-->
+            <c:MenuBarExt ui:field="headerMenuBar"
+                          autoOpen="false" vert="false"
+                          addStyleNames="{resourcesApp.menuBarCss.gwtMenuBar}">
+                <!-- пункты меню системы "Роспись" -->
+                <c:MenuItemExt ui:field="lboMenuItem" text="Бюджетная роспись" authorities="{ROLE_INSTITUTE}"/>
+                <c:MenuItemExt ui:field="fileFromFKMenuItem" text = "Загрузка файлов из ФК" authorities="{ROLE_INSTITUTE}"/>
+
+                <!-- ВНУТРЕННИЙ КОНТРОЛЬ -->
+                <c:MenuItemExt ui:field="finControlMenuItem" text = "Внутренний контроль"
+                               authorities="{ROLE_INSTITUTE},{ROLE_FOUNDER},{ROLE_FOUNDER_DEP},{ROLE_FOUNDER_EXEC}">
+                    <c:MenuBarExt vert="true" ui:field="menuBarFinControl">
+                        <!-- раздел "Структурные подразделения" -->
+                        <c:MenuItemExt ui:field="finControlDepartmentMenuItem"
+                                       text="Структурные подразделения"
+                                       authorities="{ROLE_FOUNDER}">
+                            <c:MenuBarExt vert="true" ui:field="menuBarFinControlDepartment">
+                                <c:MenuItemExt ui:field="ListOfDocsForMapOfInnerControlMenuItem"
+                                               text = "Перечень операций"
+                                               title="Перечень операций (действий по формированию документов, необходимых для выполнения внутренней бюджетной процедуры)"
+                                />
+                                <c:MenuItemExt ui:field="mapOfInnerControlMenuItem"
+                                               text = "Карта внутреннего финансового контроля"
+                                />
+                                <c:MenuItemExt ui:field="journalOfInnerControlMenuItem"
+                                               text = "Журнал внутреннего финансового контроля"
+                                />
+                                <c:MenuItemExt ui:field="reportOfResultInnerControlMenuItem"
+                                               text = "Отчёт о результатах внутреннего финансового контроля"
+                                />
+                            </c:MenuBarExt>
+                        </c:MenuItemExt>
+
+                        <!-- раздел "Подведомственные учреждения" -->
+                        <c:MenuItemExt ui:field="finControlInstituteMenuItem"
+                                       text="Подведомственные учреждения"
+                                       authorities="{ROLE_FOUNDER}">
+                            <c:MenuBarExt vert="true" ui:field="menuBarFinControlInstitute">
+                                <c:MenuItemExt ui:field="reportOfInnerControlMenuItem"
+                                               text = "Отчёт о проведении мероприятий внутреннего контроля"
+                                />
+                            </c:MenuBarExt>
+                        </c:MenuItemExt>
+
+
+                        <!-- TODO: Пока для пользователей не ЦА повторяем пункты меню, чтобы не отображать лишние панели -->
+                        <!-- пункты меню для пользователей с ролью "Учреждение" -->
+                        <c:MenuItemExt ui:field="reportOfInnerControlMenuItem_RoleInstitute"
+                                       text = "Отчёт о проведении мероприятий внутреннего контроля"
+                                       authorities="{ROLE_INSTITUTE}"
+                        />
+
+                        <!-- пункты меню для пользователей с ролью "Учредитель (Департамент)" -->
+                        <c:MenuItemExt ui:field="ListOfDocsForMapOfInnerControlMenuItem_RoleFounderDep"
+                                       text = "Перечень операций"
+                                       title="Перечень операций (действий по формированию документов, необходимых для выполнения внутренней бюджетной процедуры)"
+                                       authorities="{ROLE_FOUNDER_DEP}"
+                        />
+                        <c:MenuItemExt ui:field="mapOfInnerControlMenuItem_RoleFounderDep"
+                                       text = "Карта внутреннего финансового контроля"
+                                       authorities="{ROLE_FOUNDER_DEP}"
+                        />
+                        <c:MenuItemExt ui:field="journalOfInnerControlMenuItem_RoleFounderDep"
+                                       text = "Журнал внутреннего финансового контроля"
+                                       authorities="{ROLE_FOUNDER_DEP}"
+                        />
+
+                    </c:MenuBarExt>
+                </c:MenuItemExt>
+
+                <!-- ВНУТРЕННИЙ АУДИТ -->
+                <c:MenuItemExt ui:field="auditMenuItem" text = "Внутренний аудит"
+                               authorities="{ROLE_FOUNDER},{ROLE_FOUNDER_DEP},{ROLE_INSTITUTE}">
+                    <c:MenuBarExt vert="true" ui:field="menuBarAudit">
+
+                        <!-- раздел "Структурные подразделения" -->
+                        <c:MenuItemExt ui:field="auditDepartmentMenuItem" text="Структурные подразделения"
+                                       authorities="{ROLE_FOUNDER}">
+                            <c:MenuBarExt vert="true" ui:field="menuBarAuditDepartment">
+                                <c:MenuItemExt ui:field="auditPlannedDepartmentMenuItem"
+                                               text="Плановая проверка" />
+                                <c:MenuItemExt ui:field="auditUnplannedDepartmentMenuItem"
+                                               text="Внеплановая проверка" />
+                            </c:MenuBarExt>
+                        </c:MenuItemExt>
+
+                        <!-- раздел "Подведомственные учреждения" -->
+                        <c:MenuItemExt ui:field="auditInstituteMenuItem" text="Подведомственные учреждения"
+                                        authorities="{ROLE_FOUNDER}" >
+                            <c:MenuBarExt vert="true" ui:field="menuBarAuditInstitute">
+                                <c:MenuItemExt ui:field="auditPlannedDependentMenuItem"
+                                               text = "Плановая проверка" />
+                                <c:MenuItemExt ui:field="auditUnplannedDependentMenuItem"
+                                               text = "Внеплановая проверка" />
+                                <c:MenuItemExt ui:field="externalControlReportMenuItem"
+                                               text = "Отчёт финансового контроля" />
+                            </c:MenuBarExt>
+                        </c:MenuItemExt>
+
+                        <!-- раздел "Межбюджетные трансферты (НКО и субъекты)" -->
+                        <c:MenuItemExt ui:field="auditSubsidyMenuItem" text="Межбюджетные трансферты (НКО и субъекты)"
+                                       authorities="{ROLE_FOUNDER}">
+                            <c:MenuBarExt vert="true" ui:field="menuBarAuditSubsidy">
+                                <c:MenuItemExt ui:field="auditPlannedNkoMenuItem"
+                                               text = "Плановая проверка"/>
+                                <c:MenuItemExt ui:field="auditUnplannedNkoMenuItem"
+                                               text = "Внеплановая проверка"/>
+                            </c:MenuBarExt>
+                        </c:MenuItemExt>
+
+
+                        <!-- пункты меню для пользователей с ролью "Учреждение" -->
+                        <c:MenuItemExt ui:field="auditPlannedDependentMenuItem_RoleInstitute"
+                                       text = "Плановая проверка"
+                                       authorities="{ROLE_INSTITUTE}"
+                        />
+                        <c:MenuItemExt ui:field="auditUnplannedDependentMenuItem_RoleInstitute"
+                                       text = "Внеплановая проверка"
+                                       authorities="{ROLE_INSTITUTE}"
+                        />
+                        <c:MenuItemExt ui:field="externalControlReportMenuItem_RoleInstitute"
+                                       text = "Отчёт финансового контроля"
+                                       authorities="{ROLE_INSTITUTE}"
+                        />
+
+                    </c:MenuBarExt>
+
+                </c:MenuItemExt>
+
+
+                <!-- НАРУШЕНИЯ -->
+                <c:MenuItemExt ui:field="violationMenuItem" text="Нарушения"
+                               authorities="{ROLE_FOUNDER},{ROLE_INSTITUTE}" >
+                    <c:MenuBarExt vert="true" ui:field="menuBarViolation">
+                        <c:MenuItemExt ui:field="NVA_SPR_FKAU_VidNarMenuItem"
+                                       text = "Виды нарушений"/>
+                        <c:MenuItemExt ui:field="NVA_SPR_FKAU_ViolationMenuItem"
+                                       text = "Формулировки нарушений"/>
+
+                        <c:MenuItemExt ui:field="Test_violationMenuItem"
+                                       text = "Тест - Фиксация нарушений"/>
+                    </c:MenuBarExt>
+
+
+                </c:MenuItemExt>
+
+
+                <!-- СПРАВОЧНИКИ -->
+                <c:MenuItemExt ui:field="guidesMenuItem" text = "Справочники"
+                               authorities="{ROLE_ADMIN},{ROLE_FOUNDER}">
+                    <c:MenuBarExt vert="true" ui:field="menuBarGuides">
+
+                        <!-- раздел "Учреждения, структурные подразделения, сотрудники" -->
+                        <c:MenuItemExt ui:field="guidesInstituteMenuItem"
+                                       text="Учреждения, структурные подразделения, сотрудники">
+                            <c:MenuBarExt vert="true" ui:field="menuBarGuidesInstitutes">
+                                <c:MenuItemExt ui:field="institute" text = "Учреждения"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_DepartmentsMenuItem" text = "Департаменты"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_OTDELMenuItem" text = "Отделы"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_User_DepartmentsMenuItem" text = "Связь пользователей с департаментами"/>
+                                <c:MenuItemExt ui:field="position" text = "Должности"/>
+                                <c:MenuItemExt ui:field="signer" text = "Подписывающие лица"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_MFWorkersMenuItem" text = "Сотрудники Министерства"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_PositionsMenuItem" text = "Должности сотрудников Министерства"/>
+                            </c:MenuBarExt>
+                        </c:MenuItemExt>
+
+                        <!-- раздел "Бюджетные процедуры" -->
+                        <c:MenuItemExt ui:field="guidesBudgetProcedureMenuItem" text="Бюджетные процедуры">
+                            <c:MenuBarExt vert="true" ui:field="menuBarGuidesBudgetProcedure">
+                                <c:MenuItemExt ui:field="NVA_SPR_FKAU_Proc_ProcessMenuItem" text = "Процедуры/процессы"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_FKAU_OperMenuItem" text = "Операции"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_NPAMenuItem" text = "Нормативные правовые акты"/>
+                            </c:MenuBarExt>
+                        </c:MenuItemExt>
+
+                        <!-- раздел "Контроль" -->
+                        <c:MenuItemExt ui:field="guidesFinControlMenuItem" text="Контроль">
+                            <c:MenuBarExt vert="true" ui:field="menuBarGuidesFinControl">
+                                <c:MenuItemExt ui:field="NVA_SPR_FK_CONTROL_OBJECTMenuItem" text = "Объекты контроля"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_FK_MethodMenuItem" text ="Методы контроля"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_FK_SpKontrMenuItem" text = "Способы контроля"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_FK_VidKontrMenuItem" text = "Виды контроля"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_FK_KDMenuItem" text = "Контрольные действия"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_FK_LevelRiskMenuItem" text = "Уровни рисков"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_FKAU_REASONMenuItem" text = "Основания для проведения внутреннего контроля"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_FK_KD_PeriodMenuItem" text = "Периодичность выполнения контрольного действия"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_FK_KD_ProdMenuItem" text = "Продолжительность выполнения контрольного действия"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_FK_TypeDocMenuItem" text = "Типы документов проверки"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_FK_TypeDoc_ProcNaprMenuItem" text = "Связь видов документов с финансовой процедурой контроля"/>
+
+                            </c:MenuBarExt>
+                        </c:MenuItemExt>
+
+                        <!-- раздел "Аудит" -->
+                        <c:MenuItemExt ui:field="guidesAuditMenuItem" text="Аудит">
+                            <c:MenuBarExt vert="true" ui:field="menuBarGuidesAudit">
+                                <c:MenuItemExt ui:field="NVA_SPR_FKAU_TipProvMenuItem" text = "Типы проверок"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_FAU_VidPrMenuItem" text = "Виды аудиторской проверки"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_FAU_METODMenuItem" text = "Методы аудита"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_FAU_CelMenuItem" text = "Цели аудиторской проверки"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_FAU_WORK_AUDITMenuItem" text = "Задачи аудиторской проверки"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_FAU_SUB_AUDIT_CONTROLMenuItem" text = "Темы аудиторских проверок"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_FAU_QUEST_WAYMenuItem" text = "Вопросы по направлениям деятельности"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_FKAU_ORGMenuItem" text = "Проверяющие организации"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_FAU_USER_CONTROLMenuItem" text = "Cотрудники, включаемые в аудиторские проверки"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_FKAU_OsnovMenuItem" text = "Основания для продления или приостановления проверок"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_FKAU_VidOtvMenuItem" text = "Виды ответственности"/>
+                            </c:MenuBarExt>
+                        </c:MenuItemExt>
+
+                        <!-- раздел "Общие" -->
+                        <c:MenuItemExt ui:field="guidesGeneralMenuItem" text="Общие">
+                            <c:MenuBarExt vert="true" ui:field="menuBarGuidesGeneral">
+                                <c:MenuItemExt ui:field="NVA_SPR_FAU_REPORTMenuItem" text = "Отчёты"/>
+                                <c:MenuItemExt ui:field="NVA_SPR_FAU_DATE_REPORTMenuItem" text = "Регламентные даты для отчётов"/>
+                            </c:MenuBarExt>
+                        </c:MenuItemExt>
+
+                    </c:MenuBarExt>
+                </c:MenuItemExt>
+
+                <!-- АДМИНИСТРИРОВАНИЕ -->
+                <c:MenuItemExt ui:field="usersMenuItem" text = "Администрирование"
+                               authorities="{ROLE_ADMIN},{ROLE_CURATOR}" >
+                    <c:MenuBarExt vert="true" ui:field="menuBarAdmin">
+                        <c:MenuItemExt ui:field="users" text = "Карточки пользователей"/>
+                        <c:MenuItemExt ui:field="usersRoles" text = "Назначение ролей, доступных пользователю" />
+                        <c:MenuItemExt ui:field="guideRoles" text = "Справочник ролей"/>
+                        <c:MenuItemExt ui:field="journalNoticeMenuItem" text = "Уведомления пользователей" />
+                        <c:MenuItemExt ui:field="auditNpaMenuItem" text="Автоматизированная правовая система"/>
+                        <c:MenuItemExt ui:field="auditViolationNpa" text="Анализ формулировки нарушений" />
+                        <c:MenuItemExt ui:field="journalsMenuItem" text = "Журналы">
+                            <c:MenuBarExt vert="true" ui:field="menuBarJournals">
+                                <c:MenuItemExt ui:field="journalOperationMenuItem" text = "Журнал событий"/>
+                                <c:MenuItemExt ui:field="usersSessionsMenuItem" text = "Журнал сеансов"/>
+                            </c:MenuBarExt>
+                        </c:MenuItemExt>
+                    </c:MenuBarExt>
+                </c:MenuItemExt>
+
+                <!-- ФОРУМ -->
+                <c:MenuItemExt ui:field="forumMenuItem" text = "Форум"
+                               authorities="{ROLE_ADMIN},{ROLE_INSTITUTE},{ROLE_FOUNDER}">
+                </c:MenuItemExt>
+                <!-- Аудит "НПА" -->
+
+
+
+
+                <!--<c:MenuItemExt ui:field="finControlMenuItem" text = "Внутренний контроль" authorities="{ROLE_FOUNDER},{ROLE_FOUNDER_DEP},{ROLE_FOUNDER_EXEC},{ROLE_INSTITUTE}"/>-->
+                <!--c:MenuItemExt ui:field="structuralAuditMenuItem" text = "Внутренний аудит" authorities="{ROLE_FOUNDER},{ROLE_FOUNDER_DEP},{ROLE_FOUNDER_EXEC}"/> -->
+                <!--c:MenuItemExt ui:field="dependentAuditMenuItem" text = "Ведомственный аудит" authorities="{ROLE_INSTITUTE},{ROLE_FOUNDER},{ROLE_FOUNDER_DEP},{ROLE_FOUNDER_EXEC}"/> -->
+                <!--c:MenuItemExt ui:field="externalControlReportMenuItem" text = "Отчет финансового контроля " authorities="{ROLE_INSTITUTE},{ROLE_FOUNDER}"/> -->
+                <!--<c:MenuItemExt ui:field="nsiMenuItem" text = "НСИ" authorities="{ROLE_FOUNDER}"/>-->
+                <!--<c:MenuItemExt ui:field="settingMenuItem" text = "Настройки" authorities="{ROLE_ADMIN},{ROLE_FOUNDER}"/>-->
+
+                <!--<c:MenuItemExt ui:field="NVA_SPR_FKAU_OBJMenuItem" text = "Объекты контроля и аудита"/>-->
+
+            </c:MenuBarExt>
+        </g:north>
+        <g:north size='2.1'> <!-- минимальное значение при котором влезает combobox с годами -->
+            <g:HorizontalPanel width="100%">
+                <g:cell horizontalAlignment="ALIGN_LEFT" verticalAlignment="ALIGN_MIDDLE">
+                    <g:HTML styleName='{style.breadCrumb}' ui:field="breadCrumb">
+                        Путь из хлебных <sup>(Bread)</sup> крошек <sup>(Crumbs)</sup>
+                    </g:HTML>
+                </g:cell>
+                <g:cell horizontalAlignment="ALIGN_RIGHT" verticalAlignment="ALIGN_MIDDLE">
+                    <g:HTMLPanel styleName="{style.yearSelector}">
+                        <label for="codeParent">
+                            <sup style="color: red;">*</sup> Выберите год:
+                        </label>
+                        <g:ValueListBox ui:field="yearListBox" />
+                    </g:HTMLPanel>
+                </g:cell>
+            </g:HorizontalPanel>
+        </g:north>
+    </g:DockLayoutPanel>
+</ui:UiBinder>

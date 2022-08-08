@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings xmlns="http://xmlns.jcp.org/xml/ns/persistence/orm"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence/orm http://xmlns.jcp.org/xml/ns/persistence/orm_2_1.xsd"
+                 version="2.1">
+
+    <persistence-unit-metadata>
+        <persistence-unit-defaults>
+            <!--схема по-умолчанию для сущностей из этого файла-->
+            <schema></schema>
+        </persistence-unit-defaults>
+    </persistence-unit-metadata>
+
+    <package>ru.nvacenter.bis.core.server.domain</package>
+
+    <!-- Внимание!
+        В MySQL отсутвует понятие schema, но hibernate добавляет её к запросам, если она указана в маппинге @Entity.
+        В этом файле schema переопределена.
+        <schema>__<table> эмулирует schema в MySQL, так что её показывает phpMyAdmin
+    -->
+
+    <entity class="BundleDivisionInstitute" access="FIELD">
+        <table name="fhd__BundleDivisionInstitute" schema=""/>
+    </entity>
+    <entity class="BundleInstituteSubInstitute" access="FIELD">
+        <table name="fhd__BundleInstituteSubInstitute" schema=""/>
+    </entity>
+    <entity class="Division" access="FIELD">
+        <table name="fhd__SprDivision" schema=""/>
+    </entity>
+    <entity class="Institute" access="FIELD">
+        <table name="fhd__SprInstitute" schema=""/>
+    </entity>
+    <entity class="Notice" access="FIELD">
+        <table name="fhd__JournalNotice" schema=""/>
+        <attributes>
+            <many-to-many name="users" target-entity="User">
+                <join-table name="fhd__User_Notice" schema="">
+                    <join-column name="fk_noticeId" />
+                    <inverse-join-column name="fk_userId" />
+                </join-table>
+            </many-to-many>
+        </attributes>
+    </entity>
+    <entity class="Position" access="FIELD">
+        <table name="fhd__SprPosition" schema=""/>
+    </entity>
+    <entity class="Role" access="FIELD">
+        <table name="fhd__SprRole" schema=""/>
+    </entity>
+    <entity class="Signer" access="FIELD">
+        <table name="fhd__SprSigner" schema=""/>
+    </entity>
+    <entity class="User" access="FIELD">
+        <table name="fhd__SprUser" schema=""/>
+        <attributes>
+            <many-to-one name="institute" target-entity="Institute">
+                <join-table name="fhd__BundleUserInstitute" schema=""  >
+                    <join-column name="IdUser" />
+                    <inverse-join-column name="IdInstitute"/>
+                </join-table>
+            </many-to-one>
+            <many-to-many name="roles" target-entity="Role">
+                <join-table name="fhd__User_Role" schema="" >
+                    <join-column name="IdUser" />
+                    <inverse-join-column name="IdRole" />
+                </join-table>
+            </many-to-many>
+        </attributes>
+    </entity>
+    <entity class="UserSession" access="FIELD">
+        <table name="fhd__User_HttpSession" schema=""/>
+    </entity>
+    <entity class="ru.nvacenter.bis.core.server.spring.security.JpaRememberMeToken" >
+        <table name="fhd__UserRememberMeToken" schema=""/>
+    </entity>
+
+</entity-mappings>

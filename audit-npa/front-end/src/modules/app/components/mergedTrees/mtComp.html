@@ -1,0 +1,82 @@
+<div class="ui-g">
+    <div class="ui-g-6">
+        <p-tree [value]="mergedTree.children" [style]="{'width':'100%'}">
+            <ng-template let-node pTemplate="default">
+                <span *ngIf="node != null">
+                    <span *ngIf="node.diffs == null; else elseBlockDiffs">
+                        <span *ngIf="node.nodeLeft != null; else elseBlock">
+                            <span *ngIf="node.nodeLeft.data != null; else elseBlockTree">
+                                <span *ngIf="node.nodeLeft.data.name != null">
+                                    <span *ngIf="node.nodeRight != null; else elseBlockRight1">
+                                        <span *ngIf="node.nodeRight.data != null; else elseBlockRight2">
+                                            <span *ngIf="node.nodeRight.data.name != null">
+                                                <span *ngIf="node.nodeRight.data.name == node.nodeLeft.data.name">
+                                                    <span data-tooltip="sw" title="{{node.nodeLeft.data.name}}">{{node.nodeLeft.data.name}}</span>
+                                                </span>
+                                            </span>
+                                        </span>
+                                        <ng-template #elseBlockRight2>
+                                            <span class="brownNode" data-tooltip="sw" title="{{node.nodeLeft.data.name}}">{{node.nodeLeft.data.name}}</span>
+                                        </ng-template>
+                                    </span>
+                                    <ng-template #elseBlockRight1>
+                                        <span class="brownNode" data-tooltip="sw" title="{{node.nodeLeft.data.name}}">{{node.nodeLeft.data.name}}</span>
+                                    </ng-template>
+                                </span>
+                            </span>
+                            <ng-template #elseBlockTree>
+                                <input type="text" disabled="true" style="background-color: grey;width:820px;height:20px">
+                            </ng-template>
+                        </span>
+                        <ng-template #elseBlock>
+                            <input type="text" disabled="true" style="background-color: grey;width:820px;height:20px">
+                        </ng-template>
+                    </span>
+                    <ng-template #elseBlockDiffs>
+                        <div [innerHtml]="node.htmlLeft" data-tooltip="sw" title="{{node.nodeLeft.data.name}}"></div>
+                    </ng-template>
+                </span>
+            </ng-template>
+        </p-tree>
+    </div>
+    <div class="ui-g-6">
+        <p-tree [value]="mergedTree.children" [style]="{'width':'100%'}">
+            <ng-template let-node pTemplate="default">
+                <span *ngIf="node != null">
+                    <span *ngIf="node.diffs == null; else elseBlockDiffs">
+                        <span *ngIf="node.nodeRight != null; else elseBlock">
+                            <span *ngIf="node.nodeRight.data != null; else elseBlockTree">
+                                <span *ngIf="node.nodeRight.data.name != null">
+                                    <span *ngIf="node.nodeLeft != null; else elseBlockRight1">
+                                        <span *ngIf="node.nodeLeft.data != null; else elseBlockRight2">
+                                            <span *ngIf="node.nodeLeft.data.name != null">
+                                                <span *ngIf="node.nodeRight.data.name == node.nodeLeft.data.name">
+                                                    <span data-tooltip="sw" title="{{node.nodeRight.data.name}}">{{node.nodeRight.data.name}}</span>
+                                                </span>
+                                            </span>
+                                        </span>
+                                        <ng-template #elseBlockRight2>
+                                            <span class="brownNode" data-tooltip="sw" title="{{node.nodeRight.data.name}}">{{node.nodeRight.data.name}}</span>
+                                        </ng-template>
+                                    </span>
+                                    <ng-template #elseBlockRight1>
+                                        <span class="brownNode" data-tooltip="sw" title="{{node.nodeRight.data.name}}">{{node.nodeRight.data.name}}</span>
+                                    </ng-template>
+                                </span>
+                            </span>
+                            <ng-template #elseBlockTree>
+                                <input type="text" disabled="true" style="background-color: grey;width:820px;height:20px">
+                            </ng-template>
+                        </span>
+                        <ng-template #elseBlock>
+                            <input type="text" disabled="true" style="background-color: grey;width:820px;height:20px">
+                        </ng-template>
+                    </span>
+                    <ng-template #elseBlockDiffs>
+                        <div [innerHtml]="node.htmlRight" data-tooltip="sw" title="{{node.nodeRight.data.name}}"></div>
+                    </ng-template>
+                </span>
+            </ng-template>
+        </p-tree>
+    </div>
+</div>

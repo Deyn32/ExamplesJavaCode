@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.1"
+             xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence http://xmlns.jcp.org/xml/ns/persistence/persistence_2_1.xsd">
+
+    <persistence-unit name="appPersistenceUnit" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <non-jta-data-source>java:/comp/env/jdbc/efois/149/FOIS_BO_GRBS</non-jta-data-source>
+
+        <mapping-file>META-INF/mappings/core-mappings.xml</mapping-file>
+        <mapping-file>META-INF/mappings/audit-mappings.xml</mapping-file>
+
+        <!--Переопределение файла из проекта core-->
+
+        <!--<mapping-file>META-INF/mappings/audit-fz-mappings.xml</mapping-file>-->
+
+
+
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+        <!--Caching is enabled for all entities for Cacheable(true) is specified.-->
+        <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
+        <properties>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.MySQL5InnoDBDialect" />
+            <!--Всегда подставляет каталог в запрос!!!! Неиспользовать если есть несколько каталогов!-->
+            <!--<property name="hibernate.default_catalog" value="audit" />-->
+            <property name="hibernate.query.substitutions" value="true 1, false 0, yes 'Y', no 'N'" />
+            <property name="hibernate.show_sql" value="false" />
+            <property name="hibernate.format_sql" value="true" />
+            <property name="hibernate.use_sql_comments" value="true" />
+
+            <property name="hibernate.connection.autocommit" value="false"/>
+            <property name="hibernate.connection.release_mode" value="auto"/>
+            <!-- setting above is important using XA-DataSource on SQLServer,
+               otherwise SQLServerException: The function START: has failed. No transaction cookie was returned.-->
+
+            <property name="hibernate.generate_statistics" value="true"/>
+            <!--keep the cache entries in a more readable format-->
+            <property name="hibernate.cache.use_structured_entries" value="false"/>
+
+            <property name="hibernate.cache.use_second_level_cache" value="false" />
+            <property name="hibernate.cache.use_query_cache" value="false" />
+            <!--
+                для использования кэша infinispan на предоставляемого WildFly,
+                нужно чтобы версии библиотек infinispan-core, hibernate-infinispan в pom и в modules WildFly в точности совпадали
+            -->
+            <!--<property name="hibernate.cache.region.factory_class" value="org.jboss.as.jpa.hibernate5.infinispan.SharedInfinispanRegionFactory"/>-->
+            <!--<property name="hibernate.cache.region.factory_class" value="org.hibernate.cache.infinispan.JndiInfinispanRegionFactory"/>-->
+            <!--<property name="hibernate.cache.infinispan.cachemanager" value="java:jboss/infinispan/container/hibernate"/>-->
+            <!--<property name="hibernate.cache.infini.span.statistics" value="true"/>-->
+            <!--<property name="hibernate.cache.infinispan.RarelyChangedSprCacheRegion.eviction.max_idle" value="3600000"/>-->
+
+            <property name="jboss.as.jpa.providerModule" value="application" />
+            <property name="jboss.as.jpa.managed" value="true" />
+        </properties>
+    </persistence-unit>
+
+    <persistence-unit name="foisPersistenceUnit" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <!-- Используя Bean Spring вместо DataSource будет подставлена реализация AbstractRoutingDataSource -->
+        <non-jta-data-source>java:/DataSourceFOIS2016</non-jta-data-source>
+
+        <!--<mapping-file>META-INF/mappings/core-fois-mappings.xml</mapping-file>-->
+        <!--<mapping-file>META-INF/mappings/lbo-fois-mappings.xml</mapping-file>-->
+        <!--<mapping-file>META-INF/mappings/audit-fois-mappings.xml</mapping-file>-->
+        <!--<mapping-file>META-INF/mappings/file-fk-mappings.xml</mapping-file>-->
+
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+        <!-- Нельзя использовать кэш второго уровня из-за AbstractRoutingDataSource -->
+        <shared-cache-mode>NONE</shared-cache-mode>
+        <properties>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.SQLServer2008Dialect" />
+            <property name="hibernate.query.substitutions" value="true 1, false 0, yes 'Y', no 'N'" />
+            <property name="hibernate.show_sql" value="false" />
+            <property name="hibernate.format_sql" value="true" />
+            <property name="hibernate.use_sql_comments" value="true" />
+
+            <property name="hibernate.connection.autocommit" value="false"/>
+            <property name="hibernate.connection.release_mode" value="auto"/>
+            <!-- setting above is important using XA-DataSource on SQLServer,
+               otherwise SQLServerException: The function START: has failed. No transaction cookie was returned.-->
+
+            <property name="hibernate.generate_statistics" value="false"/>
+
+            <!-- Нельзя использовать кэш второго уровня из-за AbstractRoutingDataSource -->
+            <property name="hibernate.cache.use_second_level_cache" value="false" />
+            <property name="hibernate.cache.use_query_cache" value="false" />
+
+            <property name="jboss.as.jpa.providerModule" value="application" />
+            <!-- Нельзя создать через WildFly из-за AbstractRoutingDataSource -->
+            <property name="jboss.as.jpa.managed" value="false" />
+        </properties>
+    </persistence-unit>
+
+    <persistence-unit name="nsiPersistenceUnit" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+        <non-jta-data-source>java:/comp/env/jdbc/efois/149/FOIS_NSI</non-jta-data-source>
+
+        <!--<mapping-file>META-INF/mappings/core-nsi-mappings.xml</mapping-file>-->
+        <!--<mapping-file>META-INF/mappings/audit-nsi-mappings.xml</mapping-file>-->
+        <!--<mapping-file>META-INF/mappings/audit-fz-mappings.xml</mapping-file>-->
+        <!--<mapping-file>META-INF/mappings/audit-violation-nsi-mappings.xml</mapping-file>-->
+        <mapping-file>META-INF/mappings/audit-npa-common-mappings.xml</mapping-file>
+        <mapping-file>META-INF/mappings/audit-docfz-mappings.xml</mapping-file>
+        <mapping-file>META-INF/mappings/audit-violation-npa-mappings.xml</mapping-file>
+
+
+        <!--
+        Если нужно чтобы hibernate сам искал классы помеченный @Entity либо файлы hbm, то не надо здесь указывать ни один класс
+        -->
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+        <!--Caching is enabled for all entities for Cacheable(true) is specified.-->
+        <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
+        <properties>
+            <!-- Scan for annotated classes and Hibernate mapping XML files -->
+            <property name="hibernate.archive.autodetection" value="class, hbm" />
+            <property name="hibernate.dialect" value="org.hibernate.dialect.SQLServer2008Dialect" />
+            <property name="hibernate.query.substitutions" value="true 1, false 0, yes 'Y', no 'N'" />
+            <property name="hibernate.show_sql" value="false" />
+            <property name="hibernate.format_sql" value="true" />
+            <property name="hibernate.use_sql_comments" value="true" />
+
+            <property name="hibernate.connection.autocommit" value="false"/>
+            <property name="hibernate.connection.release_mode" value="auto"/>
+            <!-- setting above is important using XA-DataSource on SQLServer,
+               otherwise SQLServerException: The function START: has failed. No transaction cookie was returned.-->
+
+            <property name="hibernate.generate_statistics" value="true"/>
+            <!--keep the cache entries in a more readable format-->
+            <property name="hibernate.cache.use_structured_entries" value="false"/>
+
+            <property name="hibernate.cache.use_second_level_cache" value="false" />
+            <property name="hibernate.cache.use_query_cache" value="false" />
+            <!--
+                для использования кэша infinispan на предоставляемого WildFly,
+                нужно чтобы версии библиотек infinispan-core, hibernate-infinispan в pom и в modules WildFly в точности совпадали
+            -->
+            <!--<property name="hibernate.cache.region.factory_class" value="org.hibernate.cache.infinispan.InfinispanRegionFactory"/>-->
+            <!--<property name="hibernate.cache.region.factory_class" value="org.jboss.as.jpa.hibernate5.infinispan.InfinispanRegionFactory"/>-->
+            <!--<property name="hibernate.cache.infinispan.cachemanager" value="java:jboss/infinispan/container/hibernate"/>-->
+            <!--<property name="hibernate.cache.infinispan.statistics" value="false"/>-->
+
+            <property name="jboss.as.jpa.providerModule" value="application" />
+            <property name="jboss.as.jpa.managed" value="true" />
+        </properties>
+    </persistence-unit>
+</persistence>

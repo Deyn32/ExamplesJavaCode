@@ -1,0 +1,77 @@
+<p-menubar [model]="items" [style]="{'font-size':'1.5em'}"></p-menubar>
+<span *ngIf="isComponent; else elseBlock">
+    <p-toolbar class="headerMergeTrees">
+        <div class="ui-g">
+            <div class="ui-g-12">
+                <div *ngIf="isProgressBar">
+                    <div>{{status}}</div>
+                    <p-progressBar mode="indeterminate" [style]="{'height': '6px','weidth':'100%'}"></p-progressBar>
+                </div>
+            </div>
+        </div>
+        <div class="ui-g">
+        <div class="ui-g-4">
+            <button type="button" pButton (click)="btnStart()" icon="fas fa-play" label="Старт анализа" [disabled]="disStart"></button>
+        </div>
+        <div class="ui-g-4"></div>
+        <div class="ui-g-4"></div>
+    </div>
+    </p-toolbar>
+    <br>
+    <br>
+    <br>
+    <textarea pInputTextarea style="opacity: 0;" rows="1" autoResize="true" disabled="true"></textarea>
+    <div>
+        <span>Результат анализа формулировок нарушения в привязке к редакциям НПА</span>
+        <span>{{errorStatus}}</span>
+    </div>
+    <div class="flex-auto layout-column" id="grid-content-container">
+        <p-dataTable [value]="mainTable"
+                     emptyMessage=""
+                     [scrollable]="true"
+                     [metaKeySelection]="false"
+                     selectionMode="single"
+                     [(selection)]="selectedMainTable">
+            <p-column field="npa" header="Документ НПА" [style]="{'text-align':'center'}">
+                <ng-template let-col let-row="rowData" pTemplate="body">
+                    <div>
+                        Документ № {{row[col.field].num}} от {{row[col.field].date | date: 'dd.MM.yyyy'}}
+                    </div>
+                    <div>
+                        {{row[col.field].text}}
+                    </div>
+                </ng-template>
+            </p-column>
+            <p-column field="rev" header="Редакция" [style]="{'width':'12%','text-align':'center'}">
+                <ng-template let-col let-row="rowData" pTemplate="body">
+                    <div>Ред. от {{row[col.field].dtRev | date: 'dd.MM.yyyy'}}</div>
+                    <div *ngIf="row[col.field].dtBegin != null; else elseBlockDate">
+                        <span>Действует с {{row[col.field].dtBegin | date: 'dd.MM.yyyy'}}</span>
+                        <span *ngIf="row[col.field].dtEnd != null">
+                            по {{row[col.field].dtEnd | date: 'dd.MM.yyyy'}}
+                        </span>
+                    </div>
+                    <ng-template #elseBlockDate>
+                        <span>Первоначальная</span>
+                    </ng-template>
+                </ng-template>
+            </p-column>
+            <p-column field="text" header="Структурная единица" [style]="{'width':'12%','text-align':'center'}"></p-column>
+            <p-column field="violText" header="Формулировка нарушения" [style]="{'width':'25%','text-align':'center'}"></p-column>
+            <p-column field="date_BEGIN" header="Дата начала" [style]="{'width':'7%','text-align':'center'}">
+                <ng-template let-col let-row="rowData" pTemplate="body">
+                    <span>{{row[col.field] | date: 'dd.MM.yyyy'}}</span>
+                </ng-template>
+            </p-column>
+            <p-column field="date_END" header="Дата окончания" [style]="{'width':'7%','text-align':'center'}">
+                <ng-template let-col let-row="rowData" pTemplate="body">
+                    <span>{{row[col.field] | date: 'dd.MM.yyyy'}}</span>
+                </ng-template>
+            </p-column>
+            <p-column field="result" header="Результат" [style]="{'width':'10%','text-align':'center'}"></p-column>
+        </p-dataTable>
+    </div>
+</span>
+<ng-template #elseBlock>
+    <not-find-app></not-find-app>
+</ng-template>

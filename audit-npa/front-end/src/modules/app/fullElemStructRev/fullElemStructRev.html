@@ -1,0 +1,62 @@
+<span *ngIf="isComponent == true; else elseBlock">
+    <p-toolbar class="headerMergeTrees">
+        <div class="ui-g">
+            <div class="ui-g-4">
+                <button type="button" pButton (click)="btnBack()" icon="fas fa-angle-left" label="Назад"></button>
+            </div>
+            <div class="ui-g-4">
+                <span [style.display]="modelFormRevision.idRev == null ? 'inline' : 'none'">№{{selectedDocList == null ? "" : selectedDocList.num}} от {{selectedDocList == null ? "" : selectedDocList.dt | date: 'dd.MM.yyyy'}} (без редакции)</span>
+                <span [style.display]="modelFormRevision.idRev == null ? 'none' : 'inline'">№{{selectedDocList == null ? "" : selectedDocList.num}} от {{selectedDocList == null ? "" : selectedDocList.dt | date: 'dd.MM.yyyy'}} (в ред. от {{modelFormRevision == null ? "" : modelFormRevision.dtRev | date: 'dd.MM.yyyy'}})</span>
+            </div>
+            <div class="ui-g-4"></div>
+        </div>
+    </p-toolbar>
+    <br>
+    <br>
+    <textarea pInputTextarea style="opacity: 0;" rows="1" autoResize="true" disabled="true"></textarea>
+    <form #StrForm="ngForm" class="ng-pristine ng-untouched ng-valid" (ngSubmit)="strSubmit()">
+        <p-dataTable [value]="tabRevfull" [editable]="true" [style]="{'margin-right':'175px'}">
+            <p-footer>
+                <div class="ui-g">
+                    <div class="ui-g-10"></div>
+                    <div class="ui-g-2">
+                        <button type="submit" pButton icon="fa-file" label="Сохранить"></button>
+                    </div>
+                </div>
+            </p-footer>
+            <p-column field="label" header="Структурная единица" [style]="{'width':'43%'}">
+                <ng-template let-col let-row="rowData" pTemplate="body">
+                    <div style="overflow:scroll; height:200px;">{{row[col.field]}}</div>
+                </ng-template>
+            </p-column>
+            <p-column field="type" header="Тип структурной единицы" [style]="{'width':'20%','vertical-align':'top','text-align':'center'}">
+                <ng-template let-col let-row="rowData" pTemplate="body">
+                    <p-dropdown #eltype [options]="elemTypes" name="types" [(ngModel)]="selectedElemType.value" [disabled]="elemDisabled" [style]="{'width':'100%','text-align':'center'}" inputId="selectedElemType.value" editable="true" (onChange)="onChangeElemType($event)">
+                    </p-dropdown>
+                    <p>
+                        <button type="button" pButton (click)="btnAddElem()" icon="fa-file-o" label="Добавить" [disabled]="disAddElemType"></button>
+                    </p>
+                </ng-template>
+            </p-column>
+            <p-column field="dtBegin" header="Дата ввода в действие" [editable]="true" [style]="{'width':'18%','overflow':'visible','vertical-align':'top','text-align':'center'}">
+                <ng-template let-col let-row="rowData" pTemplate="body">
+                    <span>{{row[col.field] | date: 'dd.MM.yyyy'}}</span>
+                </ng-template>
+                <ng-template let-col let-row="rowData" pTemplate="editor">
+                    <p-calendar name="dtBegin" [(ngModel)]="row[col.field]" dateFormat="dd.mm.yy" [monthNavigator]="true" [yearNavigator]="true" yearRange="1950:2050" [locale]="rus" styleClass="calendarOverFlow"></p-calendar>
+                </ng-template>
+            </p-column>
+            <p-column field="dtEnd" header="Дата окончания действия" [editable]="true" [style]="{'width':'18%','overflow':'visible','vertical-align':'top','text-align':'center'}">
+                <ng-template let-col let-row="rowData" pTemplate="body">
+                    <span>{{row[col.field] | date: 'dd.MM.yyyy'}}</span>
+                </ng-template>
+                <ng-template let-col let-row="rowData" pTemplate="editor">
+                    <p-calendar name="dtEnd" [(ngModel)]="row[col.field]" dateFormat="dd.mm.yy" [monthNavigator]="true" [yearNavigator]="true" yearRange="1950:2050" [locale]="rus" styleClass="calendarOverFlow"></p-calendar>
+                </ng-template>
+            </p-column>
+        </p-dataTable>
+    </form>
+</span>
+<ng-template #elseBlock>
+    <structrev-app [selectedDocList]="selectedDocList" [modelFormRevision]="modelFormRevision"></structrev-app>
+</ng-template>

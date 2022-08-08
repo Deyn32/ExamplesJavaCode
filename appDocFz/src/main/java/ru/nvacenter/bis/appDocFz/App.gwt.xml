@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 2.7.0//EN" "http://gwtproject.org/doctype/2.7.0/gwt-module.dtd">
+<module>
+	<!-- Inherit the core Web Toolkit stuff.                        -->
+	<inherits name='com.google.gwt.user.User'/>
+	<!-- Inherit the default GWT style sheet.  You can change       -->
+	<!-- the theme of your GWT application by uncommenting          -->
+	<!-- any one of the following lines.                            -->
+	<!--Remove the line below from Application.gwt.xml Borisov A.A. 28.09.2011
+	<inherits name='com.google.gwt.user.theme.clean.Clean'/> -->
+	<inherits name='com.google.gwt.user.theme.standard.Standard'/>
+	<!-- <inherits name='com.google.gwt.user.theme.chrome.Chrome'/> -->
+	<!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
+
+	<!-- Other module inherits -->
+	<inherits name='com.google.web.bindery.requestfactory.RequestFactory' />
+	<!-- Стандартный MVP Framework Activities & Places -->
+	<inherits name="com.google.gwt.activity.Activity" />
+	<inherits name="com.google.gwt.place.Place" />
+	<!-- Editor Framework -->
+	<inherits name="com.google.gwt.editor.Editor" />
+	<!-- GWT supports JSR-303 Bean Validation: hibernate валидация на клиенте  -->
+	<inherits name="org.hibernate.validator.HibernateValidator" />
+	<inherits name="com.google.gwt.validation.Validation" />
+	<!-- To use ClientBundle -->
+	<inherits name="com.google.gwt.resources.Resources" />
+	<!-- Эмуляция логирования JUL на клиенте и отправки JUL логов с клиента на сервер -->
+	<inherits name='com.google.gwt.logging.Logging' />
+
+	<!-- Поддержка GIN (Gwt INjector) -->
+	<inherits name='com.google.gwt.inject.Inject'/>
+	<!-- Модуль GWT Upload-->
+	<inherits name='gwtupload.GWTUpload'/>
+
+	<inherits name='ru.nvacenter.platform.gwt.Platform'/>
+    <inherits name="ru.nvacenter.bis.core.Core" />
+    <inherits name='ru.nvacenter.bis.service.Service'/>
+    <inherits name='ru.nvacenter.bis.guidecom.Guide'/>
+
+
+    <!-- Эмуляция логирования JUL на клиенте и отправки JUL логов с клиента
+    на сервер -->
+    <inherits name='com.google.gwt.logging.Logging' />
+
+	<set-property name="gwt.logging.enabled" value="TRUE" />
+    <set-property name="gwt.logging.logLevel" value="INFO" />
+    <set-property name="gwt.logging.consoleHandler" value="ENABLED" />
+    <set-property name="gwt.logging.developmentModeHandler" value="ENABLED" />
+    <!--set-property name="gwt.logging.firebugHandler" value="ENABLED" /-->
+    <set-property name="gwt.logging.systemHandler" value="DISABLED" />
+    <set-property name="gwt.logging.hasWidgetsHandler" value="DISABLED" />
+    <!--set-property name="gwt.logging.popupHandler" value="DISABLED" /-->
+    <set-property name="gwt.logging.simpleRemoteHandler" value="DISABLED" />
+
+
+
+
+	<extend-configuration-property name="gin.ginjector.modules"
+								   value="ru.nvacenter.bis.appDocFz.client.InjectorModule" />
+	<extend-configuration-property name="gin.ginjector.extensions"
+								   value="ru.nvacenter.bis.appDocFz.client.Injector"/>
+
+	<extend-property name="locale" values="ru_RU"/>
+	<set-property name="locale" value="ru_RU" />
+
+	<!--replace-with class="gwtupload.client.DecoratedFileUpload.DecoratedFileUploadImplClick">
+		<when-type-is class="gwtupload.client.DecoratedFileUpload.DecoratedFileUploadImpl"/>
+		<when-property-is name="user.agent" value="ie9"/>
+	</replace-with-->
+
+	<!-- Реализация ValidatorFactory на клиенте используемая в приложении -->
+	<replace-with class="ru.nvacenter.bis.appDocFz.client.AppValidatorFactory">
+		<when-type-is class="javax.validation.ValidatorFactory" />
+	</replace-with>
+    <!-- Реализация ValidatorFactory на клиенте используемая в приложении -->
+
+    <!--replace-with class="ru.nvacenter.bis.client.app.ValidatorFactory">
+        <when-type-is class="javax.validation.ValidatorFactory" />
+    </replace-with-->
+
+
+    <!-- Use ClientFactoryImpl by default -->
+    <!--replace-with class="ru.nvacenter.bis.client.app.ClientFactoryImpl">
+        <when-type-is class="ru.nvacenter.bis.client.app.ClientFactory" />
+    </replace-with-->
+
+    <!-- Стили для ConfirmWidget -->
+    <!--<replace-with class="ru.nvacenter.bis.appDocFz.client.resources.FhzConfirmAppearance">-->
+        <!--<when-type-is class="ru.nvacenter.platform.gwt.widget.confirm.Confirm.ConfirmAppearance"/>-->
+    <!--</replace-with>-->
+
+    <!-- Specify the app entry point class.                         -->
+    <entry-point class='ru.nvacenter.bis.appDocFz.client.AppEntryPoint'/>
+
+    <!-- Specify the paths for translatable code                    -->
+	<source path='client'/>
+    <source path='shared'/>
+</module>

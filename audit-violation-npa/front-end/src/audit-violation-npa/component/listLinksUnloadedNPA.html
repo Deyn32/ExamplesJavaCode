@@ -1,0 +1,47 @@
+<div class="ui-g">
+    <div class="ui-g-12">
+        <div *ngIf="isProgressBar">
+            <div>{{status}}</div>
+            <p-progressBar mode="indeterminate" [style]="{'height': '6px','weidth':'100%'}"></p-progressBar>
+        </div>
+    </div>
+</div>
+<div class="ui-g">
+    <div class="ui-g-4"></div>
+    <div class="ui-g-4">
+        <span style="text-align: center; font-weight: bold;">
+            Список незагруженных документов, используемых в нарушениях
+        </span>
+    </div>
+    <div class="ui-g-4"></div>
+</div>
+<br>
+<p-dataTable [value]="unloadedLinksNpa"
+             emptyMessage=""
+             [scrollable]="true"
+             [tableStyle]="{'table-layout':'auto'}"
+             scrollHeight="327%">
+    <p-headerColumnGroup>
+        <p-row>
+            <p-column header="Нарушение" rowspan="2" colspan="1" [style]="{'width':'35%'}"></p-column>
+            <p-column header="Положение" rowspan="2" colspan="1" [style]="{'width':'15%'}"></p-column>
+            <p-column header="Документ" colspan="3"></p-column>
+        </p-row>
+        <p-row>
+            <p-column header="Номер" colspan="1" [style]="{'width':'5%'}"></p-column>
+            <p-column header="Дата" colspan="1" [style]="{'width':'10%'}"></p-column>
+            <p-column header="Наименование" colspan="1"></p-column>
+        </p-row>
+    </p-headerColumnGroup>
+    <p-column field="violationText" [style]="{'width':'35%'}"></p-column>
+    <p-column field="text" [style]="{'width':'15%','text-align':'center'}"></p-column>
+    <p-column field="num" [style]="{'width':'5%','text-align':'center'}"></p-column>
+    <p-column field="date" [style]="{'width':'10%'}">
+        <ng-template pTemplate="body" let-col let-row="rowData">
+            <div style="text-align: center">
+                {{row[col.field] | date: 'dd.MM.yyyy'}}
+            </div>
+        </ng-template>
+    </p-column>
+    <p-column field="caption" ></p-column>
+</p-dataTable>

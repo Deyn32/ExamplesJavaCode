@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_3_1.xsd"
+         version="3.1">
+	<!-- ========================================================== -->
+	<!-- Context Parameters -->
+	<!-- ========================================================== -->
+	<!-- Настройки сервлета ru.nvacenter.ltm.server.servlets.DocumentUploader -->
+	<context-param>
+		<param-name>maxSize</param-name>
+		<param-value>10485760</param-value>
+	</context-param>
+	<context-param>
+		<param-name>maxFileSize</param-name>
+		<param-value>10485760</param-value>
+	</context-param>
+	<context-param>
+		<param-name>slowUploads</param-name>
+		<param-value>0</param-value>
+	</context-param>
+
+	<!-- Choose unique values for the 'webAppRootKey' context-param in your web.xml -->
+	<context-param>
+		<param-name>webAppRootKey</param-name>
+		<param-value>webapp.root.bis</param-value>
+	</context-param>
+	<context-param>
+		<param-name>log4jExposeWebAppRoot</param-name>
+		<param-value>false</param-value>
+	</context-param>
+
+	<!--
+		- Location of the XML file that defines the root application context.
+		- Applied by ContextLoaderServlet.
+
+		override-profiles.xml - переопределяет некоторые bean, потому что стоит последней с списке
+	-->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+        <param-value>
+            classpath*:/spring/*-config.xml,
+			classpath:/spring/override-profiles.xml,
+            classpath*:/spring/mvc-context.xml
+        </param-value>
+	</context-param>
+    <context-param>
+        <param-name>spring.profiles.default</param-name>
+        <!--
+        <param-value>development, cas-security</param-value>
+        -->
+        <param-value>development, legacy-security</param-value>
+    </context-param>
+
+	<!-- ========================================================== -->
+	<!-- Listeners -->
+	<!-- ========================================================== -->
+	<listener>
+		<listener-class>ru.nvacenter.bis.core.server.listeners.SessionListener</listener-class>
+	</listener>
+	<listener>
+		<listener-class>ru.nvacenter.platform.core.listeners.ServletContextLoaderListener</listener-class>
+	</listener>
+	<listener>
+		<listener-class>ru.nvacenter.bis.appDocFz.server.listeners.MySQLShutdownContextListener</listener-class>
+	</listener>
+
+
+	<!-- ========================================================== -->
+	<!-- Filters -->
+	<!-- ========================================================== -->
+
+	<filter>
+		<filter-name>charsetFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <async-supported>true</async-supported>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>forceEncoding</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>charsetFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<filter>
+		<filter-name>requestContextFilter</filter-name>
+		<filter-class>org.springframework.web.filter.RequestContextFilter</filter-class>
+		<async-supported>true</async-supported>
+	</filter>
+	<filter-mapping>
+		<filter-name>requestContextFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<filter>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<filter-class>org.springframework.web.filter.DelegatingFilterProxy</filter-class>
+		<async-supported>true</async-supported>
+	</filter>
+	<filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<url-pattern>/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>ASYNC</dispatcher>
+	</filter-mapping>
+
+	<!-- Файлы GWT *.nocache.js и *.nocache.html никогда не должны кэшироваться,
+		иначе приложение перестаёт работать после обновления,
+		потому что в новой версии в этих файлах меняются ссылки на файлы cache.html
+
+		/MVP/* - в этом пути нужно помнить что имя модуля <MVP> может поменятся в другом приложении
+		-->
+	<filter>
+		<filter-name>gwtCacheControlFilter</filter-name>
+        <filter-class>ru.nvacenter.platform.gwt.user.server.GWTCacheControlFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>gwtCacheControlFilter</filter-name>
+		<url-pattern>/App/*</url-pattern>
+	</filter-mapping>
+
+	<!-- Servlet 2.3 Filter который связывает конкретный экземпляр JPA EntityManager
+		с конкретным потоком и предоставляет возможность делать lazy загрузки данных,
+		потому что EntityManager не теряется благодаря этому фильтру. Ищет в контексте
+		Spring bean EntityManagerFactory с названием "entityManagerFactory". Если
+		название другое его можно задать через init-param "entityManagerFactoryBeanName" -->
+	<filter>
+		<filter-name>openEntityManagerInViewFilter</filter-name>
+		<filter-class>org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter</filter-class>
+		<async-supported>true</async-supported>
+	</filter>
+	<filter-mapping>
+		<filter-name>openEntityManagerInViewFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+        <dispatcher>ASYNC</dispatcher>
+	</filter-mapping>
+
+	<!-- ========================================================== -->
+	<!-- Servlets -->
+	<!-- ========================================================== -->
+	<servlet>
+		<servlet-name>accountsServiceServlet</servlet-name>
+		<servlet-class>ru.nvacenter.bis.core.server.servlets.AccountsServiceServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>accountsServiceServlet</servlet-name>
+		<url-pattern>/accounts</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>documentUploader</servlet-name>
+		<servlet-class>ru.nvacenter.bis.core.server.servlets.DocumentUploader</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>documentUploader</servlet-name>
+		<url-pattern>/upload</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>documentExporter</servlet-name>
+		<servlet-class>ru.nvacenter.platform.core.servlets.DocumentExporter</servlet-class>
+		<async-supported>true</async-supported>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>documentExporter</servlet-name>
+		<url-pattern>/export</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>requestFactoryServlet</servlet-name>
+		<servlet-class>ru.nvacenter.bis.core.server.servlets.CustomRequestFactoryServlet</servlet-class>
+		<!-- Google предлагает использовать init-param в web.xml чтобы задать путь WEB-INF/classes/symbolMaps -->
+		<!-- дальше этот путь попадет в <p><code>new File(WEB-INF/classes/symbolMaps)</code></p>, но по какой то причине,  -->
+		<!-- эта папка не ассоциируется с папкой внутри моего веб приложения, возможно из-за того что это Windows(а наверное в Linux это работает). -->
+		<!-- WEB-INF/classes/ это папка в так называемом classpath и она должна быть видна java classloader'у встроенному в сервлет контейнер и наверное google этого ожидал. -->
+		<!-- С точечкой "./" заработало. -->
+		<init-param>
+			<param-name>symbolMapsDirectory</param-name>
+			<param-value>./WEB-INF/classes/App/symbolMaps/</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>requestFactoryServlet</servlet-name>
+		<url-pattern>/gwt/rf</url-pattern>
+	</servlet-mapping>
+
+
+    <servlet>
+        <servlet-name>springDispatcherServlet</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <!-- empty to use single root context -->
+            <param-value></param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+        <async-supported>true</async-supported>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>springDispatcherServlet</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+
+	<servlet>
+		<servlet-name>SimpleCaptcha</servlet-name>
+		<servlet-class>ru.nvacenter.bis.core.server.servlets.ExtendedCaptchaServlet</servlet-class>
+		<init-param>
+			<param-name>width</param-name>
+			<param-value>200</param-value>
+		</init-param>
+		<init-param>
+			<param-name>height</param-name>
+			<param-value>50</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>SimpleCaptcha</servlet-name>
+		<url-pattern>/SimpleCaptcha.jpg</url-pattern>
+	</servlet-mapping>
+
+	<!-- ========================================================== -->
+    <!-- Welcome Files -->
+    <!-- ========================================================== -->
+    <!-- Define, in order of preference, which file to show when no filename is defined in the path -->
+    <!-- eg: when user goes to http://yoursite.com/ or http://yoursite.com/somefolder -->
+    <!-- Defaults are provided in the server-wide web.xml file, such as index.jsp, index.htm -->
+    <!-- Note: using this tag overrides the defaults, so don't forget to add them here -->
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+        <welcome-file>index.htm</welcome-file>
+        <welcome-file>index.jsp</welcome-file>
+    </welcome-file-list>
+
+	<session-config>
+		<session-timeout>30</session-timeout>
+	</session-config>
+
+	<resource-ref>
+		<description>Connection Pool DataSource Reference</description>
+		<res-ref-name>efois/149/FOIS_BO_GRBS</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<lookup-name>java:/comp/env/jdbc/efois/149/FOIS_BO_GRBS</lookup-name>
+	</resource-ref>
+
+	<resource-ref>
+		<description>Connection Pool DataSourceLbo Reference</description>
+		<res-ref-name>efois/149/FOIS_NSI</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<lookup-name>java:/comp/env/jdbc/efois/149/FOIS_NSI</lookup-name>
+	</resource-ref>
+
+	<resource-ref>
+		<description>Connection Pool DataSourceLbo Reference</description>
+		<res-ref-name>efois/149/FOIS_GRBS_2013</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<lookup-name>java:/comp/env/jdbc/efois/149/FOIS_GRBS_2013</lookup-name>
+	</resource-ref>
+
+	<resource-ref>
+		<description>Connection Pool DataSourceLbo Reference</description>
+		<res-ref-name>efois/149/FOIS_GRBS_2014</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<lookup-name>java:/comp/env/jdbc/efois/149/FOIS_GRBS_2014</lookup-name>
+	</resource-ref>
+
+	<resource-ref>
+		<description>Connection Pool DataSourceLbo Reference</description>
+		<res-ref-name>jefois/149/FOIS_GRBS_2015</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<lookup-name>java:/comp/env/jdbc/efois/149/FOIS_GRBS_2015</lookup-name>
+	</resource-ref>
+
+	<resource-ref>
+		<description>Connection Pool DataSourceLbo Reference</description>
+		<res-ref-name>efois/149/FOIS_GRBS_2016</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<lookup-name>java:/comp/env/jdbc/efois/149/FOIS_GRBS_2016</lookup-name>
+	</resource-ref>
+
+	<resource-ref>
+		<description>Connection Pool DataSourceLbo Reference</description>
+		<res-ref-name>efois/149/FOIS_GRBS_2017</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<lookup-name>java:/comp/env/jdbc/efois/149/FOIS_GRBS_2017</lookup-name>
+	</resource-ref>
+
+	<resource-ref>
+		<description>Connection Pool DataSourceLbo Reference</description>
+		<res-ref-name>efois/149/FOIS_GRBS_2018</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<lookup-name>java:/comp/env/jdbc/efois/149/FOIS_GRBS_2018</lookup-name>
+	</resource-ref>
+
+	<!--resource-ref>
+		<description>Connection Pool DataSourceFz Reference</description>
+		<res-ref-name>efois/149/FZ</res-ref-name>
+		<res-type>javax.sql.DataSource</res-type>
+		<lookup-name>java:/comp/env/jdbc/efois/149/FZ</lookup-name>
+	</resource-ref-->
+
+    <persistence-unit-ref>
+        <persistence-unit-ref-name>persistence/appPersistenceUnit-emf</persistence-unit-ref-name>
+        <persistence-unit-name>appPersistenceUnit</persistence-unit-name>
+    </persistence-unit-ref>
+
+	<!-- поскольку foisPersistenceUnit невозможно создать на JavaEE сервере (из-за баз по годам!) -->
+    <!--<persistence-unit-ref>-->
+        <!--<persistence-unit-ref-name>persistence/foisPersistenceUnit-emf</persistence-unit-ref-name>-->
+        <!--<persistence-unit-name>foisPersistenceUnit</persistence-unit-name>-->
+    <!--</persistence-unit-ref>-->
+
+    <persistence-unit-ref>
+        <persistence-unit-ref-name>persistence/nsiPersistenceUnit-emf</persistence-unit-ref-name>
+        <persistence-unit-name>nsiPersistenceUnit</persistence-unit-name>
+    </persistence-unit-ref>
+
+</web-app>

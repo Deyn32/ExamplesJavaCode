@@ -1,0 +1,24 @@
+<span *ngIf="isComponent == true; else elseMainBlock">
+    <p-toolbar class="headerMergeTrees">
+        <div class="ui-g">
+            <div class="ui-g-2">
+                <button type="button" pButton (click)="btnBack()" icon="fas fa-angle-left" label="Назад"></button>
+            </div>
+            <div class="ui-g-6" style="font-size: 1.2em;font-weight:bold;text-align: center">
+                Документ № {{doc.num}} от {{doc.dt | date:'dd.MM.yyyy'}} , ред. от {{revis.dtRev | date:'dd.MM.yyyy'}}
+            </div>
+            <div class="ui-g-4">
+                <span style="font-size: 14px;margin-left: 25px">
+                <button type="button" pButton (click)="btnDownloadRev()" icon="fa-download" pTooltip="Скачать" tooltipPosition="top"></button>
+            </span>
+            </div>
+        </div>
+    </p-toolbar>
+    <br>
+    <br>
+    <textarea pInputTextarea style="opacity: 0;" rows="1" autoResize="true" disabled="true"></textarea>
+    <div [innerHtml]="htmlText"></div>
+</span>
+<ng-template #elseMainBlock>
+    <sg-comp-app></sg-comp-app>
+</ng-template>
