@@ -1,0 +1,701 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>ru.nvacenter.bis</groupId>
+    <artifactId>parent</artifactId>
+    <packaging>pom</packaging>
+    <version>1.1-SNAPSHOT</version>
+
+    <name>bis_reactor</name>
+    <description>
+        aggregating parent project
+        POM, позвляющий сократить copy-paste у общих для модулей зависимостей, properties и пр.
+    </description>
+    <organization>
+        <name>NVA-Center</name>
+        <url>www.nvacenter.ru</url>
+    </organization>
+
+    <modules>
+
+        <module>appDocFz</module>
+        <module>audit-npa</module>
+        <module>audit-npa-common</module>
+        <module>audit-violation-npa</module>
+    </modules>
+
+    <properties>
+        <webappDirectory>${project.build.directory}/${project.build.finalName}</webappDirectory>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- dependency versions -->
+        <version.guava>18.0</version.guava>
+
+        <version.slf4j>1.7.7</version.slf4j>
+        <version.javax.servlet.jstl>1.2</version.javax.servlet.jstl>
+
+        <version.spring.framework>4.3.6.RELEASE</version.spring.framework>
+        <version.spring.security>4.2.1.RELEASE</version.spring.security>
+
+        <version.hibernate.entitymanager>5.2.8.Final</version.hibernate.entitymanager>
+        <version.jackson>2.8.7</version.jackson>
+        <version.javax.mail>1.4.7</version.javax.mail>
+
+        <version.junit>4.12</version.junit>
+
+        <version.platform.core>1.0.2</version.platform.core>
+
+        <!-- plugin versions -->
+        <version.compiler.plugin>3.6.1</version.compiler.plugin>
+        <version.sources.plugin>3.0.0</version.sources.plugin>
+        <version.surefire.plugin>2.18.1</version.surefire.plugin>
+
+        <!-- GWT needs at least java 1.5 -->
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+
+        <version.war.plugin>2.6</version.war.plugin>
+        <version.antrun.plugin>1.8</version.antrun.plugin>
+    </properties>
+
+    <dependencies>
+
+        <!-- Полезные утилиты от разработчиков Googlе для работы с коллекциями,
+            строками, потокобезопасные коллекции -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${version.guava}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Начало необходимого минимума для запуска Spring Framework Application
+            Context (зависит от и потому скачает следующие: spring-core, spring-expression,
+            spring-aop, spring-beans) Это центральный артефакт для Spring's Dependency
+            Injection Container и его всегда добавляют -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>${version.spring.framework}</version>
+            <scope>compile</scope>
+            <exclusions>
+                <!-- Будет заменён соответсвующим bridge от slf4j -->
+                <exclusion>
+                    <artifactId>commons-logging</artifactId>
+                    <groupId>commons-logging</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- Конец необходимого минимума для запуска Spring Framework -->
+
+        <!-- Необходим для поддержки EhCache, JavaMail(! я использую), Quartz,
+            and Freemarker -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context-support</artifactId>
+            <version>${version.spring.framework}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Необходим для эмуляции DI во время unit-тестов -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <version>${version.spring.framework}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Начало необходимого минимума для запуска Spring Security -->
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-core</artifactId>
+            <version>${version.spring.security}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-web</artifactId>
+            <version>${version.spring.security}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-config</artifactId>
+            <version>${version.spring.security}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.security</groupId>
+            <artifactId>spring-security-cas</artifactId>
+            <version>${version.spring.security}</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- Конец необходимого минимума для запуска Spring Security -->
+
+        <!-- Spring AOP + AspectJ: позволяет обвешивать функционалом методы,
+            не модифицируя их код, достаточно описать точку подключения и что делать,
+            до либо после, либо в случае исключительной ситуации. -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aop</artifactId>
+            <version>${version.spring.framework}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-aspects</artifactId>
+            <version>${version.spring.framework}</version>
+            <scope>compile</scope>
+        </dependency>
+        <!--конец Spring AOP + AspectJ -->
+
+        <!-- Начало все что нужно для работы JPA -->
+        <!-- Вспомогательные библиотеки spring: 1. для разделения entityManager
+            по потокам обработчиков сервлетов: org.springframework.orm.jpa.support.OpenEntityManagerInViewFilter -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-orm</artifactId>
+            <version>${version.spring.framework}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Нужен, потому что содержит необходимые классы для OpenEntityManagerInViewFilter -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${version.spring.framework}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+            <version>${version.spring.framework}</version>
+        </dependency>
+
+        <!-- 2. для поддеркжи транзакций через аннотации и автоматического
+            склеивания вложенных транзакций в одну транзакцию -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-tx</artifactId>
+            <version>${version.spring.framework}</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- Конец все что нужно для работы JPA: Hibernate -->
+
+        <!-- Популярная логгер обертка SLF4j и мосты к другим логгерам -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${version.slf4j}</version>
+            <scope>compile</scope>
+        </dependency>
+        <!--
+        	Binding(нативная поддерживаемый slf4j), который будет писать
+            логи от других Bridge
+
+            scope:compile - для компиляции ShowHibernateSQL аспекта, который обращается
+            к логгеру hibernate
+        -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.1.3</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- Bridge для log4j, которым пользуется hibernate и многие другие
+            библиотеки -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <version>${version.slf4j}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+            <version>1.2.17</version>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- Bridge для java.util.logging (JUL), которым пользуется GWT -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jul-to-slf4j</artifactId>
+            <version>${version.slf4j}</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- Bridge для java common-logging, которым пользуется spring framework -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>${version.slf4j}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <!-- Для компиляции классов унаследованных от spring, который использует
+            логгер common-loggig -->
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.2</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Логгер используемый Hibernate 4, потребовалось более новая версия чем в зависимостях Hibernate
+        	из-за добавленной поддержки java.util.ServiceLoader -->
+        <dependency>
+            <groupId>org.jboss.logging</groupId>
+            <artifactId>jboss-logging</artifactId>
+            <version>3.3.0.Final</version>
+        </dependency>
+
+
+        <!-- необходимо для unit тестов -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>${version.junit}</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Конец того что необходимо для unit тестов -->
+
+        <!-- Реализация стандарта JPA: Hibernate -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+            <version>${version.hibernate.entitymanager}</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- Адаптер для подключения кэша JBoss Infinispan в виде кэша второго уровня для hibernate.
+            Infinispan встроен в Wildfly -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-infinispan</artifactId>
+            <version>${version.hibernate.entitymanager}</version>
+            <scope>compile</scope>
+        </dependency>
+
+
+        <!-- Для отправки писем пользователям через внешние smpt серверы,
+            например при регестрации -->
+        <!-- TODO: проверить можно ли вынести эту зависимость в профиль development -->
+        <dependency>
+            <groupId>javax.mail</groupId>
+            <artifactId>mail</artifactId>
+            <version>${version.javax.mail}</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Современный api (новее json.org) для работы с json, альтернатива
+            Java EE. Выбран потому что официально интегрируется со Spring, если будет
+            находится в classpath Альтернативны: Gson от Google, JSONP by Oracle реализация
+            станарта JSR353 -->
+        <!-- Только Stream api -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>${version.jackson}</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- Отображение из/в POJO -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${version.jackson}</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- Поддержка дополнительных типов специфичных для hibernate: lazy
+            коллекции и прокси -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-hibernate5</artifactId>
+            <version>${version.jackson}</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- Поддержка дополнительных типов из Java 8: Optional, новый date api, etc -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jdk8</artifactId>
+            <version>${version.jackson}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${version.jackson}</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <!-- Аннотации для настройки отображения POJO в json -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>${version.jackson}</version>
+            <scope>compile</scope>
+        </dependency>
+        <!-- Библиотека для автоматического обновления базы данных -->
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+            <version>3.2.1</version>
+        </dependency>
+
+        <!-- Библиотека для того, чтобы очищать HTML полученный от клиентов от XSS или Office верстки -->
+        <dependency>
+            <!-- jsoup HTML parser library @ http://jsoup.org/ -->
+            <groupId>org.jsoup</groupId>
+            <artifactId>jsoup</artifactId>
+            <version>1.9.2</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>se.jiderhamn.classloader-leak-prevention</groupId>
+            <artifactId>classloader-leak-prevention-servlet</artifactId>
+            <version>2.4.0</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.0.2</version>
+                <configuration>
+                    <archive>
+                        <!--Не включать pom.xml и pom.properties-->
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                        <!--Версию артифакта поместить в manifest.mf-->
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>${version.war.plugin}</version>
+                <configuration>
+                    <archive>
+                        <!--Не включать pom.xml и pom.properties-->
+                        <addMavenDescriptor>false</addMavenDescriptor>
+                        <!--Версию артифакта поместить в manifest.mf-->
+                        <manifest>
+                            <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+                        </manifest>
+                    </archive>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-install-plugin</artifactId>
+                <version>2.5.2</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.2</version>
+                <configuration>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>development</id>
+            <dependencies>
+
+                <dependency>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-io</artifactId>
+                    <version>1.3.2</version>
+                    <scope>compile</scope>
+                </dependency>
+
+                <dependency>
+                    <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
+                    <version>1.10</version>
+                </dependency>
+
+                <!-- Common Annotations for the Java (Java EE 5 injection,
+                    Lifecycle Annotations) -->
+                <dependency>
+                    <groupId>javax.annotation</groupId>
+                    <artifactId>jsr250-api</artifactId>
+                    <version>1.0</version>
+                    <scope>compile</scope>
+                </dependency>
+                <!-- JSR 330: Dependency Injection Annotations for Java -->
+                <dependency>
+                    <groupId>javax.inject</groupId>
+                    <artifactId>javax.inject</artifactId>
+                    <version>1</version>
+                </dependency>
+                <!-- Стандартная библиотека для работы с java servlet container
+                    api -->
+                <dependency>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>javax.servlet-api</artifactId>
+                    <version>3.1.0</version>
+                    <scope>compile</scope>
+                </dependency>
+                <!-- Поддержка jstl синтаксиса в .jsp страницах -->
+                <dependency>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>jstl</artifactId>
+                    <version>${version.javax.servlet.jstl}</version>
+                    <scope>compile</scope>
+                </dependency>
+                <!-- JTA 1.2 aka JSR 907: поддержка аннотации javax.transaction.Transactional -->
+                <dependency>
+                    <groupId>javax.transaction</groupId>
+                    <artifactId>javax.transaction-api</artifactId>
+                    <version>1.2</version>
+                </dependency>
+
+                <!-- Необходим для подключения к Microsoft SQL Server -->
+                <dependency>
+                    <groupId>net.sourceforge.jtds</groupId>
+                    <artifactId>jtds</artifactId>
+                    <version>1.3.1</version>
+                    <scope>compile</scope>
+                </dependency>
+
+                <!-- Для отправки писем пользователям через внешние smpt
+                    серверы, например при регестрации -->
+                <!-- TODO: проверить можно ли вынести эту зависимость в профиль
+                    development -->
+                <dependency>
+                    <groupId>javax.mail</groupId>
+                    <artifactId>mail</artifactId>
+                    <version>${version.javax.mail}</version>
+                    <scope>compile</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+        <!-- подготовка war для deploy промышленной версии на сервере WildFly -->
+        <profile>
+            <id>production</id>
+            <properties>
+                <!-- Explicitly declaring the source encoding eliminates
+                    the following message: -->
+                <!-- [WARNING] Using platform encoding (UTF-8 actually) to
+                    copy filtered resources, i.e. build is platform dependent! -->
+                <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+                <!-- Define the version of the JBoss BOMs we want to import
+                    to specify tested stacks. -->
+                <version.jboss.bom>10.1.0.Final</version.jboss.bom>
+            </properties>
+
+            <dependencyManagement>
+                <dependencies>
+                    <!-- JBoss distributes a complete set of Java EE 7 APIs including a
+                        Bill of Materials (BOM). A BOM specifies the versions of a "stack" (or a
+                        collection) of artifacts. We use this here so that we always get the correct
+                        versions of artifacts. Here we use the jboss-javaee-7.0-with-hibernate stack
+                        (you can read this as the JBoss stack of the Java EE Web Profile 6 APIs with
+                        extras from the Hibernate family of projects) -->
+                    <dependency>
+                        <groupId>org.wildfly.bom</groupId>
+                        <artifactId>wildfly-javaee7</artifactId>
+                        <version>${version.jboss.bom}</version>
+                        <type>pom</type>
+                        <scope>import</scope>
+                    </dependency>
+                </dependencies>
+            </dependencyManagement>
+
+            <dependencies>
+
+                <!-- Import the Common Annotations API (JSR-250), we use
+                    provided scope as the API is included in JBoss WildFly -->
+                <dependency>
+                    <groupId>org.jboss.spec.javax.annotation</groupId>
+                    <artifactId>jboss-annotations-api_1.2_spec</artifactId>
+                    <scope>compile</scope>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.jboss.spec.javax.servlet</groupId>
+                    <artifactId>jboss-servlet-api_3.1_spec</artifactId>
+                    <scope>compile</scope>
+                </dependency>
+
+                <!-- JTA 1.2 aka JSR 907: поддержка аннотации javax.transaction.Transactional -->
+                <dependency>
+                    <groupId>org.jboss.spec.javax.transaction</groupId>
+                    <artifactId>jboss-transaction-api_1.2_spec</artifactId>
+                    <scope>compile</scope>
+                </dependency>
+
+                <!-- Import the JPA API, we use provided scope as the API
+                    is included in JBoss WildFly -->
+                <dependency>
+                    <groupId>org.hibernate.javax.persistence</groupId>
+                    <artifactId>hibernate-jpa-2.1-api</artifactId>
+                    <scope>compile</scope>
+                </dependency>
+
+                <!--please note that scope is provided as these jars are
+                    shipped with wildfly -->
+
+                <dependency>
+                    <groupId>org.hibernate</groupId>
+                    <artifactId>hibernate-entitymanager</artifactId>
+                    <version>${version.hibernate.entitymanager}</version>
+                    <scope>compile</scope>
+                    <exclusions>
+                        <exclusion>
+                            <groupId>org.hibernate</groupId>
+                            <artifactId>hibernate-core</artifactId>
+                        </exclusion>
+                    </exclusions>
+                </dependency>
+
+                <dependency>
+                    <groupId>org.hibernate</groupId>
+                    <artifactId>hibernate-core</artifactId>
+                    <version>${version.hibernate.entitymanager}</version>
+                    <scope>compile</scope>
+                </dependency>
+
+                <!--
+                    Applications that include a copy of a persistence provider,
+                    should include one of the following Jipijapa integration jars,
+                    so that WildFly can easily deploy your application.
+                -->
+                <dependency>
+                    <groupId>org.wildfly</groupId>
+                    <artifactId>jipijapa-hibernate5</artifactId>
+                    <version>10.1.0.Final</version>
+                    <scope>compile</scope>
+                </dependency>
+
+                <!-- В WildFly поставляется validation-1.1.0, а это несовместимое api -->
+                <dependency>
+                    <groupId>javax.validation</groupId>
+                    <artifactId>validation-api</artifactId>
+                    <version>1.0.0.GA</version>
+                    <scope>compile</scope>
+                </dependency>
+
+                <!-- по-видимому явно необходим, из-за того что
+                    в jboss-deployment-structure отключен hibernate модуль wildfly -->
+                <dependency>
+                    <groupId>dom4j</groupId>
+                    <artifactId>dom4j</artifactId>
+                    <version>1.6.1</version>
+                    <scope>compile</scope>
+                </dependency>
+
+                <!-- нужен для компиляции DocumentUploader.java, но в modules Wildfly он есть -->
+                <dependency>
+                    <groupId>commons-codec</groupId>
+                    <artifactId>commons-codec</artifactId>
+                    <version>1.10</version>
+                    <scope>provided</scope>
+                </dependency>
+
+                <!-- нужен для компиляции NativeLoader.java, но в modules Wildfly он есть -->
+                <dependency>
+                    <groupId>org.apache.commons</groupId>
+                    <artifactId>commons-io</artifactId>
+                    <version>1.3.2</version>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+        </profile>
+        <!-- действия выполняемые только на релиз сборках -->
+        <profile>
+            <id>release</id>
+            <build>
+                <plugins>
+                    <!-- Генератор отчетов по используемым лицензиям сторонних библиотек
+                        и лицензии приложения -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>license-maven-plugin</artifactId>
+                        <version>1.8</version>
+                        <configuration>
+                            <sortArtifactByName>true</sortArtifactByName>
+                            <licensesOutputDirectory>${webappDirectory}/licenses</licensesOutputDirectory>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!--задачи для deploy собранного war на тестовый север приложений -->
+        <profile>
+            <id>ci</id>
+            <properties>
+                <version.wildfly.maven.plugin>1.2.0.Alpha6</version.wildfly.maven.plugin>
+            </properties>
+            <build>
+                <plugins>
+                    <!--The WildFly plugin deploys your war to a local WildFly container-->
+                    <!--To use, run: mvn package wildfly:deploy-->
+                    <plugin>
+                        <groupId>org.wildfly.plugins</groupId>
+                        <artifactId>wildfly-maven-plugin</artifactId>
+                        <version>${version.wildfly.maven.plugin}</version>
+                        <configuration>
+                            <hostname>javaserver</hostname>
+                            <port>9999</port>
+                            <username>deployment</username>
+                            <password>deployment123</password>
+                            <domain>
+                                <server-groups>
+                                    <server-group>backend-servers</server-group>
+                                </server-groups>
+                            </domain>
+                            <timeout>120</timeout>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <!--статический анализ кода-->
+        <profile>
+            <id>qulice</id>
+            <build>
+                <plugins>
+                    <!-- "Quality Police" - сборник известных инструментов проверки
+                        java code style и static analysis, таких как FindBugs -->
+                    <plugin>
+                        <groupId>com.qulice</groupId>
+                        <artifactId>qulice-maven-plugin</artifactId>
+                        <version>0.17.1</version>
+                        <configuration>
+                            <!-- наличие этого файла обязательно -->
+                            <license>file:./LICENSE.txt</license>
+                            <excludes>
+                                <!-- http://www.qulice.com/qulice-maven-plugin/example-exclude.html -->
+                                <exclude>duplicatefinder:.*</exclude>
+                            </excludes>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>static-analysis</id>
+                                <phase>validate</phase>
+                                <goals>
+                                    <goal>check</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

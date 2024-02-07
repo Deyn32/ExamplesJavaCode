@@ -3,29 +3,29 @@ package ru.nvacenter.bis.npa.services.dao;
 import org.hibernate.engine.jdbc.WrappedClob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import ru.nvacenter.bis.audit.npa.domain.dao.*;
+import ru.nvacenter.bis.audit.npa.domain.*;
 import ru.nvacenter.bis.audit.npa.services.dao.FZDocumentService;
-import ru.nvacenter.bis.audit.npa.services.dao.NVA_SPR_AUD_NPAService;
 import ru.nvacenter.bis.npa.domain.dao.*;
+import ru.nvacenter.bis.npa.domain.dto.NPARevisionCompareNode;
 import ru.nvacenter.bis.npa.domain.dto.doca.NPA_AUD_ForCopy;
 import ru.nvacenter.bis.npa.domain.dto.doca.NPA_AUD_Res;
-import ru.nvacenter.bis.audit.npa.domain.dto.NPA_AUD_ContentNode;
-import ru.nvacenter.bis.audit.npa.domain.dto.NPA_AUD_Structure;
+import ru.nvacenter.bis.npa.domain.dto.recursive.NPANode;
+import ru.nvacenter.bis.npa.domain.dto.recursive.NPA_AUD_ContentNode;
+import ru.nvacenter.bis.npa.domain.dto.recursive.NPA_AUD_Structure;
 import ru.nvacenter.bis.npa.domain.dto.revisions.NPA_AUD_RevNpaData;
 import ru.nvacenter.bis.npa.domain.dto.revisions.NPA_AUD_Rev_Data;
-import ru.nvacenter.bis.audit.npa.services.dto.NPALinearRecursiveService;
+import ru.nvacenter.bis.npa.services.dto.NPALinearRecursiveService;
+import ru.nvacenter.bis.npa.services.dto.NPARevisionCompareService;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.Query;
 import javax.persistence.TypedQuery;
-import javax.servlet.http.HttpServletResponse;
 import java.math.BigInteger;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -45,21 +45,40 @@ import java.util.stream.Collectors;
 @PreAuthorize("isAuthenticated()")
 @Transactional(value="nsiTransactionManager", propagation= Propagation.REQUIRED, rollbackFor=Exception.class)
 public class FZDocumentCopyService {
+
+    public FZDocumentCopyService(FZDocumentService fzDocumentService, DocumentService documentService,
+                                 NPALinearRecursiveService npaLinearRecursiveService,
+                                 NVA_SPR_AUD_NPAService nva_SPR_AUD_NPAService,
+                                 NPARevisionCompareService npaRevisionCompareService) {
+
+        this.fzDocumentService = fzDocumentService;
+        this.documentService = documentService;
+        this.npaLinearRecursiveService = npaLinearRecursiveService;
+        this.nva_SPR_AUD_NPAService = nva_SPR_AUD_NPAService;
+        this.npaRevisionCompareService = npaRevisionCompareService;
+    }
+
     private static final Logger LOGGER = LoggerFactory.getLogger(FZDocumentCopyService.class);
     @PersistenceContext(unitName = "nsiPersistenceUnit")
     private EntityManager entityManager;
 
-    @Autowired
-    private FZDocumentService fzDocumentService;
+    private final FZDocumentService fzDocumentService;
 
-    @Autowired
-    private DocumentService documentService;
+    private final DocumentService documentService;
 
-    @Autowired
-    private NPALinearRecursiveService npaLinearRecursiveService;
+    private final NPALinearRecursiveService npaLinearRecursiveService;
 
-    @Autowired
-    NVA_SPR_AUD_NPAService nva_SPR_AUD_NPAService;
+    private final NVA_SPR_AUD_NPAService nva_SPR_AUD_NPAService;
+
+    private final NPARevisionCompareService npaRevisionCompareService;
+
+    public NPARevisionCompareNode merged(Long docId, Optional<Long> revId1, Optional<Long> revId2) {
+        List<NVA_SPR_AUD_NPA_STRUCTURE> str1 = fzDocumentService.getListStructure(docId.toString(), revId1, Optional.empty());
+        List<NVA_SPR_AUD_NPA_STRUCTURE> str2 = fzDocumentService.getListStructure(docId.toString(), revId2, Optional.empty());
+        NPANode rev1 = npaLinearRecursiveService.ToRecursive(str1);
+        NPANode rev2 = npaLinearRecursiveService.ToRecursive(str2);
+        return npaRevisionCompareService.mergeRoot(rev1, rev2, false);
+    }
 
     public List<NVA_SPR_AUD_Element_Type> getElementTypes(){
         List<NVA_SPR_AUD_Element_Type> elems;
@@ -100,9 +119,9 @@ public class FZDocumentCopyService {
         List<Document> docaDocs = new ArrayList<>();
         //если ничего не нашли, ищем в базе ДОКИ
         List<String> err = new ArrayList<>();
-        if (allDocs.size() == 0){
+        if (allDocs.isEmpty()){
             List<Document> docs = documentService.findList(num, dt);
-            if (docs.size() == 0) {
+            if (docs.isEmpty()) {
                 return new NPA_AUD_Res(new ArrayList<>(), new ArrayList<>(Arrays.asList("Нет документов для копирования")), new ArrayList<>());
             }
             else{
@@ -131,7 +150,6 @@ public class FZDocumentCopyService {
                             docaDocs.addAll(d);
                         }
                     }
-                    //entityManager.flush();
                 }
             }
             for(NVA_SPR_AUD_NPA id : removes) {
@@ -444,8 +462,6 @@ public class FZDocumentCopyService {
         TypedQuery<NVA_SPR_AUD_NPA_Revision> q = entityManager.createQuery("from NVA_SPR_AUD_NPA_Revision r where r.isDeleted = 0 and r.id_NPA = :npa", NVA_SPR_AUD_NPA_Revision.class);
         q.setParameter("npa", id);
         List<NVA_SPR_AUD_NPA_Revision> res = q.getResultList();
-        //Добавлем пустышку, если есть данные, не привязанные к редакциям
-        //res.add(new NVA_SPR_AUD_NPA_Revision());
         Query q2 = entityManager.createQuery("select distinct s.id_SprAudNPAStr from NVA_SPR_AUD_NPA_STRUCTURE s where s.id_SprAudNPA=:npa");
         q2.setParameter("npa", id);
         List l = q2.getResultList();

@@ -13,9 +13,4 @@ public class JspNPAViolationController {
         return "audit-violation-npa";
     }
 
-    /*@RequestMapping(path = {"audit.html/violationHeaders"},
-            method = RequestMethod.GET)
-    public String getAuditView(){
-        return "audit";
-    }*/
 }

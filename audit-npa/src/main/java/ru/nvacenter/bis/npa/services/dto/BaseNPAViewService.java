@@ -1,9 +1,9 @@
 package ru.nvacenter.bis.npa.services.dto;
 
 import org.apache.commons.lang3.StringUtils;
-import ru.nvacenter.bis.audit.npa.domain.dao.NVA_SPR_AUD_NPA;
-import ru.nvacenter.bis.audit.npa.domain.dao.NVA_SPR_AUD_NPA_Revision;
-import ru.nvacenter.bis.audit.npa.domain.dao.NVA_SPR_AUD_NPA_STRUCTURE;
+import ru.nvacenter.bis.audit.npa.domain.NVA_SPR_AUD_NPA;
+import ru.nvacenter.bis.audit.npa.domain.NVA_SPR_AUD_NPA_Revision;
+import ru.nvacenter.bis.audit.npa.domain.NVA_SPR_AUD_NPA_STRUCTURE;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;

@@ -1,8 +1,6 @@
 package ru.nvacenter.bis.npa.domain.dto.revisions;
 
-//import org.apache.xpath.operations.Bool;
-
-import ru.nvacenter.bis.audit.npa.domain.dao.NVA_SPR_AUD_NPA_Revision;
+import ru.nvacenter.bis.audit.npa.domain.NVA_SPR_AUD_NPA_Revision;
 
 /**
  * Created by oshesternikova on 11.04.2017.

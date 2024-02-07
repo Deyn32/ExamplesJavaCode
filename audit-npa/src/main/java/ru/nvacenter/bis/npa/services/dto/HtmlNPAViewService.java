@@ -4,11 +4,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.bitbucket.cowwoc.diffmatchpatch.DiffMatchPatch;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import ru.nvacenter.bis.audit.npa.domain.dao.NVA_SPR_AUD_NPA;
-import ru.nvacenter.bis.audit.npa.domain.dao.NVA_SPR_AUD_NPA_Revision;
-import ru.nvacenter.bis.audit.npa.domain.dao.NVA_SPR_AUD_NPA_STRUCTURE;
-import ru.nvacenter.bis.audit.npa.domain.dto.compare.NPARevisionCompareNode;
-import ru.nvacenter.bis.audit.npa.domain.dto.NPANodeData;
+import ru.nvacenter.bis.audit.npa.domain.NVA_SPR_AUD_NPA;
+import ru.nvacenter.bis.audit.npa.domain.NVA_SPR_AUD_NPA_Revision;
+import ru.nvacenter.bis.audit.npa.domain.NVA_SPR_AUD_NPA_STRUCTURE;
+import ru.nvacenter.bis.npa.domain.dto.NPARevisionCompareNode;
+import ru.nvacenter.bis.npa.domain.dto.recursive.NPANodeData;
 
 import java.util.List;
 
@@ -48,7 +48,6 @@ public class HtmlNPAViewService extends BaseNPAViewService {
         StringBuilder sb = new StringBuilder();
         sb.append("<table>");
         sb.append(createTableCaption(root.hasAnyChanges()));
-        //sb.append(createMergeTableHeader(rev1, rev2));
         sb.append(createMergeViewList(root.getChildren()));
         sb.append("</table>");
         return sb.toString();
